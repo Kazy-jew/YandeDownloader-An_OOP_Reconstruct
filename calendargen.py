@@ -22,7 +22,7 @@ class Calendar:
         date_lis = [_.replace('{}-'.format(self.year), '') for _ in date_lis]
         return date_lis
 
-    # for Konachan
+    # for monthly
     def dates_input(self):
         date_in = [x for x in input('please input a date range(month, date, date): ').split()]
         self.date_list = self.date_range(date(int('{}'.format(self.year)), int('{:>2}'.format(date_in[0])), int('{:>2}'.format(date_in[1]))),
@@ -30,7 +30,7 @@ class Calendar:
         print(self.date_list)
         return self.date_list
 
-    # for yande.re
+    # for cross-months
     def input_dates(self):
         d = [x for x in input('please input a date range(month, date, month, date): ').split()]
         self.date_list = self.date_range(date(int('{}'.format(self.year)), int('{:>2}'.format(d[0])), int('{:>2}'.format(d[1]))),

@@ -204,9 +204,9 @@ class Downloader:
         url_origin = 'http://my.minitokyo.net/login'
         driver.get(url_origin)
         username = driver.find_element_by_xpath('//*[@id="username"]')
-        username.send_keys('Decipherer')
+        username.send_keys('*********')
         password = driver.find_element_by_xpath('//*[@id="content"]/form/li[2]/input')
-        password.send_keys('asrxlxsx')
+        password.send_keys('*********')
         log_in = driver.find_element_by_xpath('//*[@id="content"]/form/li[3]/input')
         log_in.click()
         time.sleep(3)
