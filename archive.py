@@ -70,8 +70,11 @@ def check_dl(dates, prefix='yande.re'):
     list3 = []
     for name in list1:
         if name.startswith(prefix) and (not name.endswith('crdownload')):
-            new_id = name.split(' ')[1]
-            list2.append(new_id)
+            # can use match case here after python 3.10
+            if prefix == 'yande.re':
+                list2.append(name.split(' ')[1])
+            elif prefix == 'Konachan.com':
+                list2.append(name.split()[2])
     with open('./current_dl/{}_{}.txt'.format(dates[0], dates[-1])) as k:
         list3 += k.read().splitlines()
     diff = list(set(list3) - set(list2))
@@ -134,18 +137,18 @@ def flush_all():
     return
 
 
-# for yande
-def move(dates, update=None):
+# move image file only, not id list file
+def move(dates, prefix='yande.re', update=None):
     list1 = os.listdir(path)
     list2 = []
     for i in list1:
-        if i.startswith('yande.re') and (not i.endswith('crdownload')):
+        if i.startswith(prefix) and (not i.endswith('crdownload')):
             list2.append(i)
     if not update:
         for m in dates:
             with open('./current_dl/{}-{}.txt'.format(curt_year, m)) as r:
                 pair = r.read().splitlines()
-            folder = m.replace('-', '.')
+            folder = prefix + m.replace('-', '.')
             if not os.path.exists(os.path.join(path, folder)):
                 os.makedirs(os.path.join(path, folder))
             for item in list2:

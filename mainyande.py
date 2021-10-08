@@ -3,7 +3,9 @@ from crawler import Page_ID, Downloader
 import archive
 import os
 
-def downloader(dates, original_id, id_list, eigenvalue):
+curt_year = Calendar().year
+
+def downloader_y(dates, original_id, id_list, eigenvalue=1):
     # original_id: 初始id列表
     # id_list: 当前列表(需要下载的列表)
     # eigenvalue的值(1 or 2)用来区别1:初次下载时/ 2: update时, 下载完成后文件夹的创建和文件的移动
@@ -48,6 +50,16 @@ def downloader(dates, original_id, id_list, eigenvalue):
             return
 
 
+def downloader_k(dates, id_list):
+    while id_list:
+        Downloader.sln_download(id_list)
+        id_list = archive.check_dl(dates, prefix='Konachan.com')
+    archive.move(dates, prefix='Konachan.com')
+    for _ in dates:
+        os.remove('./{}-{}'.format(curt_year, _))
+    os.remove('./{}_{}'.format(dates[0], dates[-1]))
+
+
 class Yande_re:
 
     @staticmethod
@@ -64,3 +76,74 @@ class Yande_re:
     @staticmethod
     def bulk_dl():
         dates = Calendar().input_dates()
+        Page_ID().multi_dates(dates)
+        original_id = archive.get_id(dates)
+        id_list = original_id
+        sgl = input('Enter s to start or q to quit: \n(If encountered disk space issue and reselected date range,'
+                    'enter q to quit and select "download remaining")')
+        if sgl == 's':
+            downloader_y(dates, original_id, id_list)
+        elif sgl == 'q':
+            print('download aborted')
+            return
+        else:
+            print('invalid input !')
+
+    @staticmethod
+    def chk_dl():
+        with open('./current_dl/dl_date.txt', 'r') as r:
+            dates = r.read().splitlines()
+        original_id = archive.check_dl(dates)
+        remain_id = archive.remain_id()
+        downloader_y(dates, original_id, remain_id)
+
+    @staticmethod
+    def update_chk():
+        eigenvalue = 2
+        dates = Calendar().input_dates()
+        Page_ID().multi_dates(dates)
+        original_id = archive.update(dates)
+        update_id = archive.get_id(dates)
+        downloader_y(dates, original_id, update_id, eigenvalue)
+
+    @staticmethod
+    def update_chk_dl():
+        eigenvalue = 2
+        with open('./current_dl/dl_date.txt', 'r') as r:
+            dates = r.read().splitlines()
+        original_id = archive.check_dl(dates)
+        remain_id = archive.remain_id()
+        downloader_y(dates, original_id, remain_id, eigenvalue)
+
+
+class Konachan:
+
+    @staticmethod
+    def welcome():
+        print('   Welcome to Konachan Downloader ! ')
+        print('--------------------------------------')
+        print('|************************************|')
+        print('|*** 1.download   2.the remaining ***|')
+        print('|*** 3. exit                      ***|')
+        print('|************************************|')
+        print('¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯')
+
+    @staticmethod
+    def bulk_dl():
+        dates = Calendar().dates_input()
+        Page_ID().multi_dates(dates)
+        id_list = archive.get_id(dates)
+        downloader_k(dates, id_list)
+
+
+    @staticmethod
+    def chk_dl():
+        with open('./current_dl/dl_date.txt', 'r') as r:
+            dates = r.read().splitlines()
+        print(dates)
+        id_list = archive.check_dl(dates, prefix='Konachan.com')
+        downloader_k(dates, id_list)
+
+
+class Minitokyo:
+    pass
