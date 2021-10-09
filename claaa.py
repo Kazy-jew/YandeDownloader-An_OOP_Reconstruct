@@ -29,4 +29,3 @@ I = C('2')
 #     e = cpk.load(inp)
 #
 # print(e)
-I.start()

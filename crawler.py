@@ -1,6 +1,8 @@
 """
 Downloader core, including fetching id list from web, downloading images & managing
 the image list
+1.download dates: use site_link
+2.download id list: use post_link
 """
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -23,6 +25,7 @@ from weburl import Web_URL
 
 curt_year = Calendar().year
 
+
 # for windows
 def syspath():
     path = os.getcwd().split('\\')
@@ -30,23 +33,27 @@ def syspath():
     path = path + '\\Downloads'
     return path
 
-# Retrieve and pass id list
+
 class Downloader:
 
     def __init__(self, site='yande.re'):
         self.site = site
         self.site_link = None
         self.post_link = None
-        if site in ['yand.re', 'yande', 'y']:
+        if site in ['yande.re', 'yande', 'y']:
             self.tag = 1
+            self.site = 'yande.re'
             self.site_link = Web_URL.yande[0]
             self.post_link = Web_URL.yande[1]
         elif site in ['konachan', 'konachan.com', 'k']:
             self.tag = 2
+            self.site = 'Konachan'
             self.site_link = Web_URL.konachan[0]
             self.post_link = Web_URL.konachan[1]
         elif site in ['minitokyo', 'm']:
             self.tag = 3
+            self.site = 'minitokyo'
+            self.site_link = ''
             self.post_link = Web_URL.minitokyo
         else:
             return
@@ -73,7 +80,10 @@ class Downloader:
             else:
                 mark_tag = None
                 for i in range(1, 36):
-                    url = self.site_link.format(i, curt_year, n)
+                    if not self.site_link:
+                        raise ValueError('no effect site link')
+                    else:
+                        url = self.site_link.format(i, curt_year, n)
                     page_ = requests.get(url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
                     if self.tag == 1:
@@ -127,22 +137,23 @@ class Downloader:
             return list(set(id_list) - set(id_to_remove))
 
     # selenium realization of multi_dates, for ip restriction
-    def sln_multi_dates(self, dates, site):
-        return
-    # selenium realization of remove_deleted, for ip restriction
-    def sln_remove_deleted(self, id_list, site):
+    def sln_multi_dates(self, dates):
         return
 
-    def download(self, url, id_list, prefix = 'yande.re'):
-        download_folder = prefix + re.sub('[-]', '.', url.split('%3A')[-1])  # 创建下载文件夹
+    # selenium realization of remove_deleted, for ip restriction
+    def sln_remove_deleted(self, id_list):
+        return
+
+    def download(self, id_list):
+        download_folder = self.site + ' ' + re.sub('[-]', '.', self.site_link.split('%3A')[-1])  # 创建下载文件夹
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
         print('start downloading...')
         headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 '
                                  'Firefox/67.0'}
-        proxy_url = None  # {'http': 'http://127.0.0.1:1081'}
+        proxy_url = {'http': 'http://127.0.0.1:7890'}
         for i in tqdm(id_list):
-            url = 'https://{}/post/show/{}'.format(prefix, i)  # 图片页面的链接
+            url = self.post_link.format(i)  # 图片页面的链接
             page = requests.get(url, headers=headers, proxies=proxy_url)
             tree = html.fromstring(page.content)
             if tree.xpath('//*[@id="png"]/@href'):  # 从图片页面获得原图片文件元素xpath
