@@ -8,13 +8,13 @@ def run_main():
     1.yande.re    2.konachan   3.minitokyo
     """)
     if console_log in ['2', 'k', 'konachan', 'konachan.com']:
-        site_crawler = Konachan
+        site_crawler = Konachan()
     elif console_log in ['3', 'm', 'minitokyo']:
-        site_crawler = Minitokyo
+        site_crawler = Minitokyo()
     elif console_log == 'q':
         exit()
     else:
-        site_crawler = Yande_re
+        site_crawler = Yande_re()
     site_crawler.run()
 
 

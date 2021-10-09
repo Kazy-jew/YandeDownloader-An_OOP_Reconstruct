@@ -5,7 +5,14 @@ import re
 import os
 import shutil
 from calendargen import Calendar
-from crawler import syspath
+
+# for windows
+def syspath():
+    path = os.getcwd().split('\\')
+    path = '\\'.join(path[:3])
+    path = path + '\\Downloads'
+    return path
+
 
 curt_year = Calendar().year
 path = syspath()

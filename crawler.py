@@ -21,42 +21,15 @@ import requests
 import time
 import urllib
 from calendargen import Calendar
-from weburl import Web_URL
-
-curt_year = Calendar().year
-
-
-# for windows
-def syspath():
-    path = os.getcwd().split('\\')
-    path = '\\'.join(path[:3])
-    path = path + '\\Downloads'
-    return path
+from weburl import SiteSpace
+from archive import syspath
 
 
-class Downloader:
+class Downloader(Calendar, SiteSpace):
 
-    def __init__(self, site='yande.re'):
-        self.site = site
-        self.site_link = None
-        self.post_link = None
-        if site in ['yande.re', 'yande', 'y']:
-            self.tag = 1
-            self.site = 'yande.re'
-            self.site_link = Web_URL.yande[0]
-            self.post_link = Web_URL.yande[1]
-        elif site in ['konachan', 'konachan.com', 'k']:
-            self.tag = 2
-            self.site = 'Konachan'
-            self.site_link = Web_URL.konachan[0]
-            self.post_link = Web_URL.konachan[1]
-        elif site in ['minitokyo', 'm']:
-            self.tag = 3
-            self.site = 'minitokyo'
-            self.site_link = ''
-            self.post_link = Web_URL.minitokyo
-        else:
-            return
+
+    def __init__(self):
+        super(Downloader, self).__init__()
 
     # 生成原始id列表(多文件)和合并原始列表后的初始列表(单文件)，返回输入的日期
     def multi_dates(self, dates):
@@ -73,9 +46,9 @@ class Downloader:
         for n in dates:
             date_list = []
             # 已经下载完成的列表不重复下载
-            if os.path.exists('./current_dl/{}-{}.txt'.format(curt_year, n)):
+            if os.path.exists('./current_dl/{}-{}.txt'.format(self.year, n)):
                 print('list {} already downloaded...'.format(n))
-                with open('./current_dl/{}-{}.txt'.format(curt_year, n), 'r') as r:
+                with open('./current_dl/{}-{}.txt'.format(self.year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
                 mark_tag = None
@@ -83,7 +56,7 @@ class Downloader:
                     if not self.site_link:
                         raise ValueError('no effect site link')
                     else:
-                        url = self.site_link.format(i, curt_year, n)
+                        url = self.site_link.format(i, self.year, n)
                     page_ = requests.get(url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
                     if self.tag == 1:

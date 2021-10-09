@@ -1,6 +1,12 @@
 class C:
+    def __init__(self):
+        self.year = 2021
+
+
+class D(C):
 
     def __init__(self, site='yande.re'):
+        super(D, self).__init__()
         self.site = site
         self.site_link = None
         self.post_link = None
@@ -17,9 +23,8 @@ class C:
     def start(self):
         print('self.post_link: {} is used here'.format(self.post_link))
 
-class D: pass
 
-I = C('2')
+I = D()
 # c, d = C(), D()
 # print(type(I), I.__class__, type(C), C.__class__)
 # type(c) == type(d)
@@ -29,3 +34,5 @@ I = C('2')
 #     e = cpk.load(inp)
 #
 # print(e)
+
+print(I.site)
