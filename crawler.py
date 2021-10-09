@@ -194,6 +194,10 @@ class Downloader:
 
     @staticmethod
     def sln_minitokyo(id_list):
+        with open('./login', 'r') as r:
+            userinfo = r.read().splitlines()
+        account = userinfo[0]
+        auth = userinfo[-1]
         path = syspath()
         signal = 'confirm'
         circle_times = 0
@@ -204,9 +208,9 @@ class Downloader:
         url_origin = 'http://my.minitokyo.net/login'
         driver.get(url_origin)
         username = driver.find_element_by_xpath('//*[@id="username"]')
-        username.send_keys('*********')
+        username.send_keys(account)
         password = driver.find_element_by_xpath('//*[@id="content"]/form/li[2]/input')
-        password.send_keys('*********')
+        password.send_keys(auth)
         log_in = driver.find_element_by_xpath('//*[@id="content"]/form/li[3]/input')
         log_in.click()
         time.sleep(3)
