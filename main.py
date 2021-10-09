@@ -7,9 +7,9 @@ def run_main():
     select downloader(default: yande.re, enter q to quit):
     1.yande.re    2.konachan   3.minitokyo
     """)
-    if console_log == '2' or 'konachan':
+    if console_log in ['2', 'k', 'konachan', 'konachan.com']:
         site_crawler = Konachan
-    elif console_log == '3' or 'minitokyo':
+    elif console_log in ['3', 'm', 'minitokyo']:
         site_crawler = Minitokyo
     elif console_log == 'q':
         exit()

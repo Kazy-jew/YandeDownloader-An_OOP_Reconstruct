@@ -1,5 +1,5 @@
 from calendargen import Calendar
-from crawler import Page_ID, Downloader
+from crawler import Downloader
 import archive
 import os
 
@@ -22,7 +22,8 @@ class Yande_re:
     @staticmethod
     def bulk_dl():
         dates = Calendar().input_dates()
-        Page_ID().multi_dates(dates)
+        I = Downloader()
+        I.multi_dates(dates)
         original_id = archive.get_id(dates)
         id_list = original_id
         sgl = input('Enter s to start or q to quit: \n(If encountered disk space issue and reselected date range,'
@@ -121,6 +122,7 @@ class Yande_re:
                 Yande_re.update_chk_dl()
             elif choice == '5':
                 set_year = input('please enter za year:')
+                global curt_year
                 curt_year = Calendar().set_year(int(set_year))
             elif choice == '6':
                 exit()
@@ -166,7 +168,7 @@ class Konachan:
         os.remove('./{}_{}'.format(dates[0], dates[-1]))
 
     @staticmethod
-    def run(site_url, post_url):
+    def run():
         Konachan.welcome()
         while True:
             choice = input('select operation')

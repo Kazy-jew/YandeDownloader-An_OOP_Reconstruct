@@ -31,19 +31,25 @@ def syspath():
     return path
 
 # Retrieve and pass id list
-class Page_ID:
+class Downloader:
 
-    def __init__(self, site):
-        self.select = { 'yande.re': Web_URL.yande[0],
-                        'konachan.com': Web_URL.konachan[0] }
+    def __init__(self, site='yande.re'):
         self.site = site
-
-    def site_case(self, site):
-        if site == 'yande.re':
-            self.case = self.select['yande.re']
-        elif site == 'konachan.com':
-            self.case = self.select['konachan']
-
+        self.site_link = None
+        self.post_link = None
+        if site in ['yand.re', 'yande', 'y']:
+            self.tag = 1
+            self.site_link = Web_URL.yande[0]
+            self.post_link = Web_URL.yande[1]
+        elif site in ['konachan', 'konachan.com', 'k']:
+            self.tag = 2
+            self.site_link = Web_URL.konachan[0]
+            self.post_link = Web_URL.konachan[1]
+        elif site in ['minitokyo', 'm']:
+            self.tag = 3
+            self.post_link = Web_URL.minitokyo
+        else:
+            return
 
     # 生成原始id列表(多文件)和合并原始列表后的初始列表(单文件)，返回输入的日期
     def multi_dates(self, dates):
@@ -65,13 +71,14 @@ class Page_ID:
                 with open('./current_dl/{}-{}.txt'.format(curt_year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
+                mark_tag = None
                 for i in range(1, 36):
-                    url = self.case.format(i, curt_year, n)
+                    url = self.site_link.format(i, curt_year, n)
                     page_ = requests.get(url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
-                    if self.site == 'yande':
+                    if self.tag == 1:
                         mark_tag = tree.xpath('//*[@id="post-list"]/div[2]/div[4]/p/text()')
-                    elif self.site == 'konachan':
+                    elif self.tag == 2:
                         mark_tag = tree.xpath('//*[@id="post-list"]/div[3]/div[4]/p/text()')
                     if not mark_tag:
                         date_list += tree.xpath('//*[@id="post-list-posts"]/li/@id')
@@ -90,15 +97,14 @@ class Page_ID:
 
     # 确定图片未下载成功的原因：若源已经不存在则输出删除的信息，否则为本地原因
     # post: only used in https://yande.re/post/show/, can be modified to apply for other sites
-    def remove_deleted(self, id_list, site):
-        post = 'https://{}/post/show/{}'
+    def remove_deleted(self, id_list):
         id_to_remove = []
         headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/73.0.3683.103 Safari/537.36'}
         proxy_url = {'http': 'http://127.0.0.1:7890'}
         for _ in id_list:
-            url = post.format(site, _)
+            url = self.post_link.format(_)
             page = requests.get(url, headers=headers, proxies=proxy_url)
             tree = html.fromstring(page.content)
             deleted_info = tree.xpath('//*[@id="post-view"]/div[1]/text()')
@@ -127,12 +133,7 @@ class Page_ID:
     def sln_remove_deleted(self, id_list, site):
         return
 
-
-
-class Downloader:
-
-    @staticmethod
-    def download(url, id_list, prefix = 'yande.re'):
+    def download(self, url, id_list, prefix = 'yande.re'):
         download_folder = prefix + re.sub('[-]', '.', url.split('%3A')[-1])  # 创建下载文件夹
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
@@ -158,15 +159,14 @@ class Downloader:
         print('Download Succeed')
         return
 
-    @staticmethod
-    def sln_download(id_list):
+    def sln_download(self, id_list):
         http_proxy = "http://127.0.0.1:7890"
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
         driver = webdriver.Chrome(chrome_options=chrome_options)
         print('start downloading...')
         for _ in tqdm(id_list):
-            url = 'https://yande.re/post/show/{}'.format(_)
+            url = self.post_link.format(_)
             driver.get(url)
             wait = WebDriverWait(driver, 3)
             try:
@@ -192,8 +192,7 @@ class Downloader:
         driver.close()
         return
 
-    @staticmethod
-    def sln_minitokyo(id_list):
+    def sln_minitokyo(self, id_list):
         with open('./login', 'r') as r:
             userinfo = r.read().splitlines()
         account = userinfo[0]
@@ -205,8 +204,8 @@ class Downloader:
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
         driver = webdriver.Chrome()  # chrome_options=chrome_options)
-        url_origin = 'http://my.minitokyo.net/login'
-        driver.get(url_origin)
+        url_login = 'http://my.minitokyo.net/login'
+        driver.get(url_login)
         username = driver.find_element_by_xpath('//*[@id="username"]')
         username.send_keys(account)
         password = driver.find_element_by_xpath('//*[@id="content"]/form/li[2]/input')
@@ -233,7 +232,7 @@ class Downloader:
             else:
                 print('start downloading...')
                 for _ in tqdm(diff):
-                    url = 'http://gallery.minitokyo.net/download/{}'.format(_)
+                    url = self.post_link.format(_)
                     driver.get(url)
                     location = driver.find_element_by_xpath('//*[@id="image"]/p/a')
                     actions = ActionChains(driver)
