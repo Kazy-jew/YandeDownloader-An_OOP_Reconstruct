@@ -1,5 +1,3 @@
-
-
 class SiteSpace:
 
     def __init__(self, site='yande.re'):

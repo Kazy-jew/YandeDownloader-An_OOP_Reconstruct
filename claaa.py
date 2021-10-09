@@ -23,7 +23,6 @@ class D(C):
     def start(self):
         print('self.post_link: {} is used here'.format(self.post_link))
 
-
 I = D()
 # c, d = C(), D()
 # print(type(I), I.__class__, type(C), C.__class__)
@@ -35,4 +34,3 @@ I = D()
 #
 # print(e)
 
-print(I.site)

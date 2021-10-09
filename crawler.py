@@ -27,7 +27,6 @@ from archive import syspath
 
 class Downloader(Calendar, SiteSpace):
 
-
     def __init__(self):
         super(Downloader, self).__init__()
 
@@ -79,7 +78,6 @@ class Downloader(Calendar, SiteSpace):
         return
 
     # 确定图片未下载成功的原因：若源已经不存在则输出删除的信息，否则为本地原因
-    # post: only used in https://yande.re/post/show/, can be modified to apply for other sites
     def remove_deleted(self, id_list):
         id_to_remove = []
         headers = {

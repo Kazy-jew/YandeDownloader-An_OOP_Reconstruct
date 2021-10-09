@@ -13,10 +13,8 @@ def syspath():
     path = path + '\\Downloads'
     return path
 
-
 curt_year = Calendar().year
 path = syspath()
-
 
 # get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载
 def get_id(dates):
@@ -32,7 +30,6 @@ def get_id(dates):
         print('No date file!')
     return id_list
 
-
 # raw_id为直接从原始id列表合并的初始列表
 def raw_id(dates):
     id_list = []
@@ -40,14 +37,12 @@ def raw_id(dates):
         id_list += k.read().splitlines()
     return id_list
 
-
 # 未下载的id列表
 def remain_id():
     remain_list = []
     with open('./current_dl/remain_dl.txt') as r:
         remain_list += r.read().splitlines()
     return remain_list
-
 
 def update_id(dates):
     update_list = []
@@ -60,7 +55,6 @@ def update_id(dates):
         print('update start...')
     return update_list
 
-
 def rewrite(dates, new_list):
     # 更新初始列表文件，将源已删除的图片id去除
     with open('./current_dl/{}_{}.txt'.format(dates[0], dates[-1]), 'w') as rw:
@@ -68,7 +62,6 @@ def rewrite(dates, new_list):
             rw.write('{}\n'.format(_))
     print('List updated')
     return
-
 
 # list3：初始id列表，list2: 已下载的id列表，list1: 下载的文件；返回初始列表, for yande.re
 def check_dl(dates, prefix='yande.re'):
@@ -96,7 +89,6 @@ def check_dl(dates, prefix='yande.re'):
         print('No images to download')
     return list3
 
-
 # 2021 ver
 def update(dates):
     dates_list = []
@@ -118,14 +110,12 @@ def update(dates):
             f.write('{}\n'.format(_))
     return dates_list
 
-
 # 2021 ver
 def flush_update(dates):
     for _ in dates:
         os.replace('./current_dl/{}-{}.txt'.format(curt_year, _), './namelist_date/nl_{}-{}.txt'.format(curt_year, _))
         # os.replace('./current_dl/{}-{}.txt'.format(curt_year, _), './namelist_date/nl_{}.txt'.format(_))
     return
-
 
 # 2021 ver
 def flush_all():
@@ -142,7 +132,6 @@ def flush_all():
             for _ in list3:
                 f.write('{}\n'.format(_))
     return
-
 
 # move image file only, not id list file
 def move(dates, prefix='yande.re', update=None):
