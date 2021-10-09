@@ -4,9 +4,11 @@ import os
 if not os.path.exists('./current_dl'):
     os.mkdir('./current_dl')
 
+
 class Calendar:
     def __init__(self):
         self.year = 2021
+        self.date_list = []
 
     def set_year(self, year):
         self.year = year
@@ -25,16 +27,24 @@ class Calendar:
     # for monthly
     def dates_input(self):
         date_in = [x for x in input('please input a date range(month, date, date): ').split()]
-        self.date_list = self.date_range(date(int('{}'.format(self.year)), int('{:>2}'.format(date_in[0])), int('{:>2}'.format(date_in[1]))),
-                          date(int('{}'.format(self.year)), int('{:>2}'.format(date_in[0])), int('{:>2}'.format(date_in[2]))))
+        self.date_list = self.date_range(date(int('{}'.format(self.year)),
+                                              int('{:>2}'.format(date_in[0])),
+                                              int('{:>2}'.format(date_in[1]))),
+                                         date(int('{}'.format(self.year)),
+                                              int('{:>2}'.format(date_in[0])),
+                                              int('{:>2}'.format(date_in[2]))))
         print(self.date_list)
         return self.date_list
 
     # for cross-months
     def input_dates(self):
         d = [x for x in input('please input a date range(month, date, month, date): ').split()]
-        self.date_list = self.date_range(date(int('{}'.format(self.year)), int('{:>2}'.format(d[0])), int('{:>2}'.format(d[1]))),
-                      date(int('{}'.format(self.year)), int('{:>2}'.format(d[2])), int('{:>2}'.format(d[3]))))
+        self.date_list = self.date_range(date(int('{}'.format(self.year)),
+                                              int('{:>2}'.format(d[0])),
+                                              int('{:>2}'.format(d[1]))),
+                                         date(int('{}'.format(self.year)),
+                                              int('{:>2}'.format(d[2])),
+                                              int('{:>2}'.format(d[3]))))
         print(self.date_list)
         return self.date_list
 

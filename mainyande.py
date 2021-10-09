@@ -3,6 +3,8 @@ from crawler import Downloader
 import archive
 import os
 
+curt_year = Calendar().year
+
 
 class Yande_re(Downloader):
     
@@ -91,7 +93,7 @@ class Yande_re(Downloader):
             if eigenvalue == 1:
                 archive.move(dates)
             else:
-                archive.move(dates, update=True)
+                archive.move(dates, updates=True)
             archive.flush_update(dates)
         # 下载失败时，检查 & 下载或直接归档
         else:
@@ -101,7 +103,7 @@ class Yande_re(Downloader):
                 if eigenvalue == 1:
                     archive.move(dates)
                 else:
-                    archive.move(dates, update=True)
+                    archive.move(dates, updates=True)
                 archive.flush_update(dates)
             else:
                 return
@@ -177,6 +179,7 @@ class Konachan(Downloader):
                 exit()
             else:
                 print('Invalid Input')
+
 
 class Minitokyo:
     pass
