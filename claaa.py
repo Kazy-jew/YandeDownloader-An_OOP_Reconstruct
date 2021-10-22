@@ -1,3 +1,5 @@
+import json
+
 class C:
     def __init__(self):
         self.year = 2021
@@ -33,4 +35,16 @@ I = D()
 #     e = cpk.load(inp)
 #
 # print(e)
+blackjack_hand = (8, "Q")
+with open('test_data.json', 'w') as jw:
+    json.dump(blackjack_hand, jw)
+with open('configyan.json', 'r') as jr:
+    jrstr = json.load(jr)
 
+# id_list decouple
+id_list = [j['imgId']  for i in jrstr['dates']  for j in i['id-info']]
+print(id_list)
+
+# date_list decouple
+dates_list = [jrstr['year']+'-'+x['date'] for x in jrstr['dates']]
+print(dates_list)
