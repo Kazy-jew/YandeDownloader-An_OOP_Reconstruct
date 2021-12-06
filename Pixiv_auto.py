@@ -12,19 +12,26 @@ def pixiv_daily():
     # chrome_options.add_extension("C:\\Users\\Administrator\\Desktop\\dkndmhgdcmjdmkdonmbgjpijejdcilfh.crx")
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(chrome_options=chrome_options)
-    url = 'https://www.pixiv.net/ranking.php?mode=daily&date=20211130'
-    driver.get(url)
-    dl_btn = driver.find_element_by_xpath('//*[@id="openCenterPanelBtn"]')
-    dl_btn.click()
-    crawl_debut = driver.find_element_by_xpath('/html/body/div[6]/div[4]/slot/form/div[1]/div/slot[1]/button[2]')
-    crawl_debut.click()
+    darray = daily_gen()
+    for _ in darray:
+        url = 'https://www.pixiv.net/ranking.php?mode=daily&date={}'.format(_)
+        driver.get(url)
+        # pyautogui.hotkey('alt', 'x')
+        dl_btn = driver.find_element_by_xpath('//*[@id="openCenterPanelBtn"]')
+        dl_btn.click()
+        crawl_debut = driver.find_element_by_xpath('/html/body/div[6]/div[4]/slot/form/div[1]/div/slot[1]/button[2]')
+        crawl_debut.click()
+        time.sleep(300)
 
 
 def daily_gen():
-    Calendar().input_dates()
+    I = Calendar()
+    year = I.year
+    dates = I.input_dates()
+    darray = [str(year)+x.replace('-', '') for x in dates]
+    return darray
 
 
 
 if __name__ == '__main__':
-    daily_gen()
-#     pixiv_daily()
+    pixiv_daily()
