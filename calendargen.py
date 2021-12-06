@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import os
 
 if not os.path.exists('./current_dl'):
@@ -49,3 +49,8 @@ class Calendar:
         return self.date_list
 
 
+now = datetime.now()
+nowdate = now.date()
+then = date(2021, 7, 15)
+delta = nowdate - then
+print(now, then, delta)
