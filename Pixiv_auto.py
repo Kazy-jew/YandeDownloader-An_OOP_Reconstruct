@@ -1,4 +1,5 @@
 from selenium import webdriver
+from calendargen import Calendar
 import time
 import pyautogui
 
@@ -20,9 +21,10 @@ def pixiv_daily():
 
 
 def daily_gen():
-    return
+    Calendar().input_dates()
 
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    daily_gen()
 #     pixiv_daily()

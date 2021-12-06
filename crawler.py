@@ -35,14 +35,16 @@ class Downloader(Calendar, SiteSpace):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
-        headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
-                          'Chrome/91.0.4472.164 Safari/537.36 OPR/77.0.4054.277'}
-        proxy_url = {'http': 'socks5://127.0.0.1:7890'}
+        # print(self.site_link)
         # id list of date range
         dates_list = []
         # id list of a date
         for n in dates:
+            headers = {
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
+                              'Chrome/91.0.4472.164 Safari/537.36 OPR/77.0.4054.277'}
+            proxy_url = {'http': '127.0.0.1:7890'}
+
             date_list = []
             # 已经下载完成的列表不重复下载
             if os.path.exists('./current_dl/{}-{}.txt'.format(self.year, n)):
@@ -50,12 +52,14 @@ class Downloader(Calendar, SiteSpace):
                 with open('./current_dl/{}-{}.txt'.format(self.year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
+                print('in else')
                 mark_tag = None
                 for i in range(1, 36):
                     if not self.site_link:
                         raise ValueError('no effect site link')
                     else:
                         url = self.site_link.format(i, self.year, n)
+                    print(url)
                     page_ = requests.get(url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
                     if self.tag == 1:

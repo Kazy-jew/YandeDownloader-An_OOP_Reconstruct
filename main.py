@@ -1,4 +1,4 @@
-from mainyande import Yande_re, Konachan, Minitokyo
+from interface import Yande_re, Konachan, Minitokyo
 
 
 def run_main():

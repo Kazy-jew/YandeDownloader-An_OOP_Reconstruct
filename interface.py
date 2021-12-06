@@ -2,6 +2,8 @@ from calendargen import Calendar
 from crawler import Downloader
 import archive
 import os
+from pprint import pprint
+import requests
 
 curt_year = Calendar().year
 
@@ -10,6 +12,7 @@ class Yande_re(Downloader):
     
     def __init__(self):
         super(Yande_re, self).__init__()
+        self.set_link('yande')
 
     @staticmethod
     def welcome():
@@ -26,6 +29,7 @@ class Yande_re(Downloader):
     def bulk_dl(self):
         dates = self.input_dates()
         self.multi_dates(dates)
+        # return
         original_id = archive.get_id(dates)
         id_list = original_id
         sgl = input('Enter s to start or q to quit: \n(If encountered disk space issue and reselected date range,'
@@ -134,6 +138,7 @@ class Konachan(Downloader):
 
     def __init__(self):
         super(Konachan, self).__init__()
+        self.set_link('konachan')
 
     @staticmethod
     def welcome():
@@ -144,10 +149,13 @@ class Konachan(Downloader):
         print('|*** 3. exit                      ***|')
         print('|************************************|')
         print('¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯')
+        # print(Konachan.site_link)
+        # pprint(dir(Konachan()))
 
     def bulk_dl(self):
         dates = self.dates_input()
         self.multi_dates(dates)
+        return
         id_list = archive.get_id(dates)
         self.downloader_k(dates, id_list)
 
@@ -170,7 +178,7 @@ class Konachan(Downloader):
     def run(self):
         self.welcome()
         while True:
-            choice = input('select operation')
+            choice = input('select operation: ')
             if choice == '1':
                 self.bulk_dl()
             elif choice == '2':
@@ -183,3 +191,8 @@ class Konachan(Downloader):
 
 class Minitokyo:
     pass
+
+
+if __name__ == "__main__":
+    requests.get('https://konachan.com/post?page=1&tags=date%3A2021-12-01')
+    # Konachan().run()
