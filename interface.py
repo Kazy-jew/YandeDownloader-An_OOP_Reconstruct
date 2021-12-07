@@ -155,25 +155,28 @@ class Konachan(Downloader):
     def bulk_dl(self):
         dates = self.dates_input()
         self.multi_dates(dates)
-        return
         id_list = archive.get_id(dates)
+        print(id_list)
+        os.system("pause")
         self.downloader_k(dates, id_list)
 
     def chk_dl(self):
         with open('./current_dl/dl_date.txt', 'r') as r:
             dates = r.read().splitlines()
-        print(dates)
-        id_list = archive.check_dl(dates, prefix='Konachan.com')
+        print('check {}'.format([str(self.year) + '-' + x + '.txt' for x in dates]))
+        archive.check_dl(dates, prefix='Konachan.com')
+        id_list = archive.remain_id()
         self.downloader_k(dates, id_list)
 
     def downloader_k(self, dates, id_list):
         while id_list:
             self.sln_download(id_list)
-            id_list = archive.check_dl(dates, prefix='Konachan.com')
+            archive.check_dl(dates, prefix='Konachan.com')
+            id_list = archive.remain_id()
         archive.move(dates, prefix='Konachan.com')
-        for _ in dates:
-            os.remove('./{}-{}'.format(self.year, _))
-        os.remove('./{}_{}'.format(dates[0], dates[-1]))
+        # for _ in dates:
+            # os.remove('./current_dl/{}-{}.txt'.format(self.year, _))
+        # os.remove('./current_dl/{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1]))
 
     def run(self):
         self.welcome()
@@ -193,6 +196,6 @@ class Minitokyo:
     pass
 
 
-if __name__ == "__main__":
-    requests.get('https://konachan.com/post?page=1&tags=date%3A2021-12-01')
+# if __name__ == "__main__":
+#     requests.get('https://konachan.com/post?page=1&tags=date%3A2021-12-01')
     # Konachan().run()

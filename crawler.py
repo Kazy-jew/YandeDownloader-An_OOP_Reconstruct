@@ -52,14 +52,14 @@ class Downloader(Calendar, SiteSpace):
                 with open('./current_dl/{}-{}.txt'.format(self.year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
-                print('in else')
+                # print('in else')
                 mark_tag = None
                 for i in range(1, 36):
                     if not self.site_link:
                         raise ValueError('no effect site link')
                     else:
                         url = self.site_link.format(i, self.year, n)
-                    print(url)
+                    # print(url)
                     page_ = requests.get(url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
                     if self.tag == 1:
@@ -75,8 +75,8 @@ class Downloader(Calendar, SiteSpace):
                     for item in date_list:
                         f.write('{}\n'.format(item))
                 print('{}...done'.format(url.split('%3A')[-1]))
-                dates_list += date_list
-        with open(os.path.join(download_folder, '{}_{}.txt'.format(dates[0], dates[-1])), 'w') as f:
+            dates_list += date_list
+        with open(os.path.join(download_folder, '{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1])), 'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
         return
@@ -230,3 +230,5 @@ class Downloader(Calendar, SiteSpace):
                 print('download successful')
                 time.sleep(3)
         driver.quit()
+
+

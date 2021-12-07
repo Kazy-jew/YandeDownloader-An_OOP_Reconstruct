@@ -49,8 +49,9 @@ class Calendar:
         return self.date_list
 
 
-now = datetime.now()
-nowdate = now.date()
-then = date(2021, 7, 15)
-delta = nowdate - then
-print(now, then, delta)
+if __name__ == "__main__":
+    now = datetime.now()
+    nowdate = now.date()
+    then = date(2021, 7, 15)
+    delta = nowdate - then
+    print(now, then, delta)
