@@ -157,7 +157,6 @@ class Konachan(Downloader):
         self.multi_dates(dates)
         id_list = archive.get_id(dates)
         print(id_list)
-        os.system("pause")
         self.downloader_k(dates, id_list)
 
     def chk_dl(self):
@@ -174,9 +173,9 @@ class Konachan(Downloader):
             archive.check_dl(dates, prefix='Konachan.com')
             id_list = archive.remain_id()
         archive.move(dates, prefix='Konachan.com')
-        # for _ in dates:
-            # os.remove('./current_dl/{}-{}.txt'.format(self.year, _))
-        # os.remove('./current_dl/{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1]))
+        for _ in dates:
+            os.remove('./current_dl/{}-{}.txt'.format(self.year, _))
+        os.remove('./current_dl/{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1]))
 
     def run(self):
         self.welcome()
