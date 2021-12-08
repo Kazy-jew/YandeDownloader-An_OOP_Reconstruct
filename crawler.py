@@ -192,11 +192,11 @@ class Downloader(Calendar, SiteSpace):
         driver = webdriver.Chrome()  # chrome_options=chrome_options)
         url_login = 'http://my.minitokyo.net/login'
         driver.get(url_login)
-        username = driver.find_element_by_xpath('//*[@id="username"]')
+        username = driver.find_element(By.XPATH, '//*[@id="username"]')
         username.send_keys(account)
-        password = driver.find_element_by_xpath('//*[@id="content"]/form/li[2]/input')
+        password = driver.find_element(By.XPATH, '//*[@id="content"]/form/li[2]/input')
         password.send_keys(auth)
-        log_in = driver.find_element_by_xpath('//*[@id="content"]/form/li[3]/input')
+        log_in = driver.find_element(By.XPATH, '//*[@id="content"]/form/li[3]/input')
         log_in.click()
         time.sleep(3)
         while signal == 'confirm':
@@ -220,7 +220,7 @@ class Downloader(Calendar, SiteSpace):
                 for _ in tqdm(diff):
                     url = self.post_link.format(_)
                     driver.get(url)
-                    location = driver.find_element_by_xpath('//*[@id="image"]/p/a')
+                    location = driver.find_element(By.XPATH, '//*[@id="image"]/p/a')
                     actions = ActionChains(driver)
                     actions.move_to_element_with_offset(location, 100, 100).perform()
                     actions.context_click().perform()

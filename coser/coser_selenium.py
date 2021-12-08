@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException as NSe
+from selenium.webdriver.common.by import By
 import json
 import time
 
@@ -19,16 +20,16 @@ def coser_lewd():
             print('All cosers have been lewd ( ´ ▽ ` ).｡ｏ♡')
             break
         try:
-            coser = driver.find_element_by_xpath('//*[@id="treeview"]/ul/li/ul/li[{}]/span/a'.format(i))
+            coser = driver.find_element(By.XPATH, '//*[@id="treeview"]/ul/li/ul/li[{}]/span/a'.format(i))
             print(coser.text)
             coser_name = coser.text
             coser_resource = []
             coser.click()
-            lewd_info = driver.find_element_by_xpath('//*[@id="list_footer_info_label"]')
+            lewd_info = driver.find_element(By.XPATH, '//*[@id="list_footer_info_label"]')
             print(lewd_info.text)
             file_number = int(lewd_info.text.split(" ")[4])
             for i in range(1, file_number+1):
-                lewd_resource = driver.find_element_by_xpath('//*[@id="files"]/tbody/tr[{}]/td[1]/span/a'.format(i))
+                lewd_resource = driver.find_element(By.XPATH, '//*[@id="files"]/tbody/tr[{}]/td[1]/span/a'.format(i))
                 link = lewd_resource.get_attribute("href")
                 coser_resource.append(link)
                 print(link)
