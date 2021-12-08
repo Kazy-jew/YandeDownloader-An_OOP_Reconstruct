@@ -9,9 +9,8 @@ from calendargen import Calendar
 
 # for windows
 def syspath():
-    dl_path = os.getcwd().split('\\')
-    dl_path = '\\'.join(dl_path[:3])
-    dl_path = dl_path + '\\Downloads'
+    dl_path = os.path.expanduser('~')
+    dl_path = os.path.join(dl_path, r'\Downloads')
     return dl_path
 
 

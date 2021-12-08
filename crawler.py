@@ -149,7 +149,7 @@ class Downloader(Calendar, SiteSpace):
         http_proxy = "http://127.0.0.1:7890"
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
-        driver = webdriver.Chrome(chrome_options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
         print('start downloading...')
         for _ in tqdm(id_list):
             url = self.post_link.format(_)
@@ -189,7 +189,7 @@ class Downloader(Calendar, SiteSpace):
         http_proxy = "127.0.0.1:7890"
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
-        driver = webdriver.Chrome()  # chrome_options=chrome_options)
+        driver = webdriver.Chrome()  # options=chrome_options)
         url_login = 'http://my.minitokyo.net/login'
         driver.get(url_login)
         username = driver.find_element(By.XPATH, '//*[@id="username"]')

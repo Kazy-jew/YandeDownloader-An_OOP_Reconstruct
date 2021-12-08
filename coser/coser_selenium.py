@@ -8,7 +8,7 @@ def coser_lewd():
     http_proxy = "127.0.0.1:7890"
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
-    driver = webdriver.Chrome(chrome_options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
     url = 'https://cosindex.251.sh/#/Cosersets'
     driver.get(url)
     sgn = 0
