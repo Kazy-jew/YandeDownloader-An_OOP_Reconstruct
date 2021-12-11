@@ -252,8 +252,9 @@ class Downloader(Calendar, SiteSpace):
         # print(self.site_link)
         # id list of date range
         dates_list = []
-        # id list of a date
+        driver = Downloader.sln_chrome()
         for n in dates:
+            # id list of a date
             date_list = []
             # 已经下载完成的列表不重复下载
             if os.path.exists('./current_dl/{}-{}.txt'.format(self.year, n)):
@@ -261,8 +262,7 @@ class Downloader(Calendar, SiteSpace):
                 with open('./current_dl/{}-{}.txt'.format(self.year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
-                url = self.site_link.format('1', self.year, n)
-                driver = Downloader.sln_chrome()
+                url = self.site_link.format(1, self.year, n)
                 driver.get(url)
                 pages_num_element = driver.find_element(By.XPATH, '//*[@id="paginator"]/div')
                 page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
