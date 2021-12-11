@@ -267,6 +267,7 @@ class Downloader(Calendar, SiteSpace):
                 pages_num_element = driver.find_element(By.XPATH, '//*[@id="paginator"]/div')
                 page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                 pages_num = int(pages_num_element.text.split(' ')[-3])
+                print('Date {}-{} has {} pages'.format(self.year, n, pages_num))
                 date_list += [x.get_attribute('id') for x in page_img]
                 if pages_num > 1:
                     for i in range(2, pages_num+1):
