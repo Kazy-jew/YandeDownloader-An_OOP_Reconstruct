@@ -60,6 +60,9 @@ class Downloader(Calendar, SiteSpace):
                     else:
                         url = self.site_link.format(i, self.year, n)
                     # print(url)
+                    # In selenium, you can use driver.page_source to get the same result
+                    # source = driver.page_source (here source equals page_.content)
+                    # tree = html.fromstring(source)
                     page_ = requests.get(url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
                     if self.tag == 1:
@@ -146,10 +149,7 @@ class Downloader(Calendar, SiteSpace):
         return
 
     def sln_download(self, id_list):
-        http_proxy = "http://127.0.0.1:7890"
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = Downloader.sln_chrome()
         print('start downloading...')
         for _ in tqdm(id_list):
             url = self.post_link.format(_)
@@ -231,4 +231,61 @@ class Downloader(Calendar, SiteSpace):
                 time.sleep(3)
         driver.quit()
 
+    @staticmethod
+    def sln_chrome():
+        root = os.path.expanduser('~')
+        chrome_data = r'AppData\Local\Google\Chrome\User Data'
+        data_dir = os.path.join(root, chrome_data)
+        chrome_options = webdriver.ChromeOptions()
+        # change to your own chrome profile path if is not installed with default configuration,
+        # you can find it in chrome browser under address chrome://version/
+        chrome_options.add_argument("--user-data-dir={}".format(data_dir))
+        # keep browser open
+        chrome_options.add_experimental_option("detach", True)
+        driver = webdriver.Chrome(options=chrome_options)
+        return driver
 
+    def sln_multi_page(self, dates):
+        download_folder = 'current_dl'
+        if not os.path.exists(download_folder):
+            os.makedirs(download_folder)
+        # print(self.site_link)
+        # id list of date range
+        dates_list = []
+        # id list of a date
+        for n in dates:
+            date_list = []
+            # 已经下载完成的列表不重复下载
+            if os.path.exists('./current_dl/{}-{}.txt'.format(self.year, n)):
+                print('list {} already downloaded...'.format(n))
+                with open('./current_dl/{}-{}.txt'.format(self.year, n), 'r') as r:
+                    date_list += r.read().splitlines()
+            else:
+                url = self.site_link.format('1', self.year, n)
+                driver = Downloader.sln_chrome()
+                driver.get(url)
+                pages_num_element = driver.find_element(By.XPATH, '//*[@id="paginator"]/div')
+                page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
+                pages_num = int(pages_num_element.text.split(' ')[-3])
+                date_list += [x.get_attribute('id') for x in page_img]
+                if pages_num > 1:
+                    for i in range(2, pages_num+1):
+                        url = self.site_link.format(i, self.year, n)
+                        driver.get(url)
+                        page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
+                        date_list += [x.get_attribute('id') for x in page_img]
+                date_list = [w.replace('p', '') for w in date_list]
+                with open(os.path.join(download_folder, '{}.txt'.format(url.split('%3A')[-1])), 'w') as f:
+                    for item in date_list:
+                        f.write('{}\n'.format(item))
+                print('{}...done'.format(url.split('%3A')[-1]))
+            dates_list += date_list
+        with open(os.path.join(download_folder, '{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1])), 'w') as f:
+            for item in dates_list:
+                f.write('{}\n'.format(item))
+        return
+
+
+# if __name__ == "__main__":
+#     pass
+    # Downloader.sln_multi_page()
