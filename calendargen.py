@@ -24,27 +24,42 @@ class Calendar:
         date_lis = [_.replace('{}-'.format(self.year), '') for _ in date_lis]
         return date_lis
 
-    # for monthly
-    def dates_input(self):
-        date_in = [x for x in input('please input a date range(month, date, date): ').split()]
-        self.date_list = self.date_range(date(int('{}'.format(self.year)),
-                                              int('{:>2}'.format(date_in[0])),
-                                              int('{:>2}'.format(date_in[1]))),
-                                         date(int('{}'.format(self.year)),
-                                              int('{:>2}'.format(date_in[0])),
-                                              int('{:>2}'.format(date_in[2]))))
-        print(self.date_list)
-        return self.date_list
-
-    # for cross-months
+    # generate dates list [month-date, month-date]
     def input_dates(self):
-        d = [x for x in input('please input a date range(month, date, month, date): ').split()]
-        self.date_list = self.date_range(date(int('{}'.format(self.year)),
-                                              int('{:>2}'.format(d[0])),
-                                              int('{:>2}'.format(d[1]))),
-                                         date(int('{}'.format(self.year)),
-                                              int('{:>2}'.format(d[2])),
-                                              int('{:>2}'.format(d[3]))))
+        while not self.date_list:
+            date_in = [x for x in input('please input a date range (format: m or m/d/d or m/d/m/d for cross-months): ').split('/')]
+            if len(date_in) == 1:
+                if int(date_in[0]) != 12:
+                    self.date_list = self.date_range(date(int('{}'.format(self.year)),
+                                                          int('{:>2}'.format(date_in[0])),
+                                                          int('{:>2}'.format(1))),
+                                                     date(int('{}'.format(self.year)),
+                                                          int('{:>2}'.format(date_in[0]))+1,
+                                                          int('{:>2}'.format(1))))
+                    self.date_list = self.date_list[:-1]
+                else:
+                    self.date_list = self.date_range(date(int('{}'.format(self.year)),
+                                                          int('{:>2}'.format(date_in[0])),
+                                                          int('{:>2}'.format(1))),
+                                                     date(int('{}'.format(self.year)),
+                                                          int('{:>2}'.format(date_in[0])),
+                                                          int('{:>2}'.format(31))))
+            elif len(date_in) == 3:
+                self.date_list = self.date_range(date(int('{}'.format(self.year)),
+                                                      int('{:>2}'.format(date_in[0])),
+                                                      int('{:>2}'.format(date_in[1]))),
+                                                 date(int('{}'.format(self.year)),
+                                                      int('{:>2}'.format(date_in[0])),
+                                                      int('{:>2}'.format(date_in[2]))))
+            elif len(date_in) == 4:
+                self.date_list = self.date_range(date(int('{}'.format(self.year)),
+                                                      int('{:>2}'.format(date_in[0])),
+                                                      int('{:>2}'.format(date_in[1]))),
+                                                 date(int('{}'.format(self.year)),
+                                                      int('{:>2}'.format(date_in[2])),
+                                                      int('{:>2}'.format(date_in[3]))))
+            else:
+                print("Invalid Form !")
         print(self.date_list)
         return self.date_list
 

@@ -100,7 +100,6 @@ def check_dl(dates, prefix='yande.re'):
     return list3
 
 
-# 2021 ver
 def update(dates):
     dates_list = []
     for i in dates:
@@ -122,7 +121,6 @@ def update(dates):
     return dates_list
 
 
-# 2021 ver
 def flush_update(dates):
     for _ in dates:
         os.replace('./current_dl/{}-{}.txt'.format(curt_year, _), './namelist_date/nl_{}-{}.txt'.format(curt_year, _))

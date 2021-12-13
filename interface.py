@@ -3,7 +3,7 @@ from crawler import Downloader
 import archive
 import os
 from pprint import pprint
-import requests
+# import requests
 
 curt_year = Calendar().year
 
@@ -153,7 +153,7 @@ class Konachan(Downloader):
         # pprint(dir(Konachan()))
 
     def bulk_dl(self):
-        dates = self.dates_input()
+        dates = self.input_dates()
         self.multi_dates(dates)
         id_list = archive.get_id(dates)
         print(id_list)
@@ -191,7 +191,11 @@ class Konachan(Downloader):
                 print('Invalid Input')
 
 
-class Minitokyo:
+class Minitokyo(Downloader):
+    def __init__(self):
+        super(Minitokyo, self).__init__()
+        self.set_link('minitokyo')
+    latest_id = ''
     pass
 
 

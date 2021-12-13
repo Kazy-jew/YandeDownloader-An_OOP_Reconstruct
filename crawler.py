@@ -30,6 +30,20 @@ class Downloader(Calendar, SiteSpace):
     def __init__(self):
         super(Downloader, self).__init__()
 
+    @staticmethod
+    def sln_chrome():
+        root = os.path.expanduser('~')
+        chrome_data = r'AppData\Local\Google\Chrome\User Data'
+        data_dir = os.path.join(root, chrome_data)
+        chrome_options = webdriver.ChromeOptions()
+        # change to your own chrome profile path if is not installed with default configuration,
+        # you can find it in chrome browser under address chrome://version/
+        chrome_options.add_argument("--user-data-dir={}".format(data_dir))
+        # keep browser open
+        chrome_options.add_experimental_option("detach", True)
+        driver = webdriver.Chrome(options=chrome_options)
+        return driver
+
     # 生成原始id列表(多文件)和合并原始列表后的初始列表(单文件)，返回输入的日期
     def multi_dates(self, dates):
         download_folder = 'current_dl'
@@ -114,138 +128,8 @@ class Downloader(Calendar, SiteSpace):
             # 存在未下载成功的图片，返回该图片id列表
             return list(set(id_list) - set(id_to_remove))
 
-    # selenium realization of multi_dates, for ip restriction
+    # selenium realization of multi_dates, for ip restriction of anti-crawler
     def sln_multi_dates(self, dates):
-        return
-
-    # selenium realization of remove_deleted, for ip restriction
-    def sln_remove_deleted(self, id_list):
-        return
-
-    def download(self, id_list):
-        download_folder = self.site + ' ' + re.sub('[-]', '.', self.site_link.split('%3A')[-1])  # 创建下载文件夹
-        if not os.path.exists(download_folder):
-            os.makedirs(download_folder)
-        print('start downloading...')
-        headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 '
-                                 'Firefox/67.0'}
-        proxy_url = {'http': 'http://127.0.0.1:7890'}
-        for i in tqdm(id_list):
-            url = self.post_link.format(i)  # 图片页面的链接
-            page = requests.get(url, headers=headers, proxies=proxy_url)
-            tree = html.fromstring(page.content)
-            if tree.xpath('//*[@id="png"]/@href'):  # 从图片页面获得原图片文件元素xpath
-                source = tree.xpath('//*[@id="png"]/@href')  # 图片页面没有png格式, 更换xpath
-            else:
-                source = tree.xpath('//*[@id="highres"]/@href')
-            file_name = source[0].split('/')[-1]  # 从原图片地址的最后一段中获得图片描述的部分
-            name = urllib.parse.unquote(file_name)  # 将其中的url转码为对应字符作为下载的文件名
-            name_modify = re.sub('[*:?/|<>"]', '_', name)
-            data = requests.get(source[0], headers=headers, proxies=proxy_url)
-            with open(os.path.join(download_folder, name_modify), "wb") as file:  # 保存文件
-                file.write(data.content)
-            time.sleep(2)
-        print('Download Succeed')
-        return
-
-    def sln_download(self, id_list):
-        driver = Downloader.sln_chrome()
-        print('start downloading...')
-        for _ in tqdm(id_list):
-            url = self.post_link.format(_)
-            driver.get(url)
-            wait = WebDriverWait(driver, 3)
-            try:
-                img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="png"]')))
-            except TE:
-                try:
-                    img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="highres"]')))
-                except:
-                    continue
-            actions = ActionChains(driver)
-            actions.click(img)
-            actions.perform()
-            time.sleep(1)
-            pyautogui.hotkey('ctrl', 's')
-            time.sleep(1)
-            pyautogui.typewrite(['enter'])
-            time.sleep(1)
-            if _ == id_list[-1]:
-                time.sleep(20)
-            if len(id_list) == 1:
-                time.sleep(90)
-        print('download successful')
-        driver.close()
-        return
-
-    def sln_minitokyo(self, id_list):
-        with open('./login', 'r') as r:
-            userinfo = r.read().splitlines()
-        account = userinfo[0]
-        auth = userinfo[-1]
-        path = syspath()
-        signal = 'confirm'
-        circle_times = 0
-        http_proxy = "127.0.0.1:7890"
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
-        driver = webdriver.Chrome()  # options=chrome_options)
-        url_login = 'http://my.minitokyo.net/login'
-        driver.get(url_login)
-        username = driver.find_element(By.XPATH, '//*[@id="username"]')
-        username.send_keys(account)
-        password = driver.find_element(By.XPATH, '//*[@id="content"]/form/li[2]/input')
-        password.send_keys(auth)
-        log_in = driver.find_element(By.XPATH, '//*[@id="content"]/form/li[3]/input')
-        log_in.click()
-        time.sleep(3)
-        while signal == 'confirm':
-            circle_times += 1
-            list1 = os.listdir(path)
-            minitokyo_downloaded = []
-            for name in list1:
-                if name.endswith('jpg'):
-                    minitokyo_image = name.split('.')[0]
-                    minitokyo_downloaded.append(minitokyo_image)
-            diff = list(set(id_list) - set(minitokyo_downloaded))
-            if len(diff) == 0:
-                signal = 'deny'
-                print('Finally, all pictures have been downloaded')
-            elif circle_times == 5:
-                signal = 'deny'
-                print('Almost downloaded with some exceptions')
-                print(diff)
-            else:
-                print('start downloading...')
-                for _ in tqdm(diff):
-                    url = self.post_link.format(_)
-                    driver.get(url)
-                    location = driver.find_element(By.XPATH, '//*[@id="image"]/p/a')
-                    actions = ActionChains(driver)
-                    actions.move_to_element_with_offset(location, 100, 100).perform()
-                    actions.context_click().perform()
-                    pyautogui.typewrite(['down', 'down', 'enter'])
-                    time.sleep(0.8)
-                    pyautogui.typewrite(['enter'])
-                print('download successful')
-                time.sleep(3)
-        driver.quit()
-
-    @staticmethod
-    def sln_chrome():
-        root = os.path.expanduser('~')
-        chrome_data = r'AppData\Local\Google\Chrome\User Data'
-        data_dir = os.path.join(root, chrome_data)
-        chrome_options = webdriver.ChromeOptions()
-        # change to your own chrome profile path if is not installed with default configuration,
-        # you can find it in chrome browser under address chrome://version/
-        chrome_options.add_argument("--user-data-dir={}".format(data_dir))
-        # keep browser open
-        chrome_options.add_experimental_option("detach", True)
-        driver = webdriver.Chrome(options=chrome_options)
-        return driver
-
-    def sln_multi_page(self, dates):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
@@ -286,6 +170,124 @@ class Downloader(Calendar, SiteSpace):
                 f.write('{}\n'.format(item))
         driver.close()
         return
+
+    # selenium realization of remove_deleted, for ip restriction
+    def sln_remove_deleted(self, id_list):
+        return
+
+    # normal
+    def download(self, id_list):
+        download_folder = self.site + ' ' + re.sub('[-]', '.', self.site_link.split('%3A')[-1])  # 创建下载文件夹
+        if not os.path.exists(download_folder):
+            os.makedirs(download_folder)
+        print('start downloading...')
+        headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 '
+                                 'Firefox/67.0'}
+        proxy_url = {'http': 'http://127.0.0.1:7890'}
+        for i in tqdm(id_list):
+            url = self.post_link.format(i)  # 图片页面的链接
+            page = requests.get(url, headers=headers, proxies=proxy_url)
+            tree = html.fromstring(page.content)
+            if tree.xpath('//*[@id="png"]/@href'):  # 从图片页面获得原图片文件元素xpath
+                source = tree.xpath('//*[@id="png"]/@href')  # 图片页面没有png格式, 更换xpath
+            else:
+                source = tree.xpath('//*[@id="highres"]/@href')
+            file_name = source[0].split('/')[-1]  # 从原图片地址的最后一段中获得图片描述的部分
+            name = urllib.parse.unquote(file_name)  # 将其中的url转码为对应字符作为下载的文件名
+            name_modify = re.sub('[*:?/|<>"]', '_', name)
+            data = requests.get(source[0], headers=headers, proxies=proxy_url)
+            with open(os.path.join(download_folder, name_modify), "wb") as file:  # 保存文件
+                file.write(data.content)
+            time.sleep(2)
+        print('Download Succeed')
+        return
+
+    # selenium 
+    def sln_download(self, id_list):
+        driver = Downloader.sln_chrome()
+        print('start downloading...')
+        for _ in tqdm(id_list):
+            url = self.post_link.format(_)
+            driver.get(url)
+            wait = WebDriverWait(driver, 3)
+            try:
+                img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="png"]')))
+            except TE:
+                try:
+                    img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="highres"]')))
+                except:
+                    continue
+            actions = ActionChains(driver)
+            actions.click(img)
+            actions.perform()
+            # time.sleep(1)
+            pyautogui.hotkey('ctrl', 's')
+            # time.sleep(1)
+            pyautogui.typewrite(['enter'])
+            # time.sleep(1)
+            if _ == id_list[-1]:
+                time.sleep(20)
+            if len(id_list) == 1:
+                time.sleep(90)
+        print('download successful')
+        driver.close()
+        return
+
+    def sln_minitokyo(self, id_list):
+        path = syspath()
+        signal = 'confirm'
+        circle_times = 0
+        driver = Downloader.sln_chrome()
+        # no need to login if use user profile:
+        # with open('./login', 'r') as r:
+        #     userinfo = r.read().splitlines()
+        # account = userinfo[0]
+        # auth = userinfo[-1]
+        # http_proxy = "127.0.0.1:7890"
+        # chrome_options = webdriver.ChromeOptions()
+        # chrome_options.add_argument('--proxy-server={}'.format(http_proxy))
+        # driver = webdriver.Chrome()  # options=chrome_options)
+        # url_login = 'http://my.minitokyo.net/login'
+        # driver.get(url_login)
+        # username = driver.find_element(By.XPATH, '//*[@id="username"]')
+        # username.send_keys(account)
+        # password = driver.find_element(By.XPATH, '//*[@id="content"]/form/li[2]/input')
+        # password.send_keys(auth)
+        # log_in = driver.find_element(By.XPATH, '//*[@id="content"]/form/li[3]/input')
+        # log_in.click()
+        # time.sleep(3)
+        while signal == 'confirm':
+            circle_times += 1
+            list1 = os.listdir(path)
+            minitokyo_downloaded = []
+            for name in list1:
+                if name.endswith('jpg'):
+                    minitokyo_image = name.split('.')[0]
+                    minitokyo_downloaded.append(minitokyo_image)
+            diff = list(set(id_list) - set(minitokyo_downloaded))
+            if len(diff) == 0:
+                signal = 'deny'
+                print('Finally, all pictures have been downloaded')
+            elif circle_times == 5:
+                signal = 'deny'
+                print('Almost downloaded with some exceptions')
+                print(diff)
+            else:
+                print('start downloading...')
+                for _ in tqdm(diff):
+                    url = self.post_link.format(_)
+                    driver.get(url)
+                    location = driver.find_element(By.XPATH, '//*[@id="image"]/p/a')
+                    actions = ActionChains(driver)
+                    actions.move_to_element_with_offset(location, 100, 100).perform()
+                    actions.context_click().perform()
+                    pyautogui.typewrite(['down', 'down', 'enter'])
+                    time.sleep(0.8)
+                    pyautogui.typewrite(['enter'])
+                print('download successful')
+                # time.sleep(3)
+        driver.quit()
+
 
 
 # if __name__ == "__main__":
