@@ -77,6 +77,10 @@ def check_dl(dates, prefix='yande.re'):
     list1 = os.listdir(path)
     list2 = []
     list3 = []
+    if (not os.path.exists("./current_dl/dl_date.txt")) or \
+            (not os.path.exists(f'./current_dl/{curt_year}-{dates[0]}_{curt_year}-{dates[-1]}')):
+        print('nothing remain to be downloaded')
+        return
     for name in list1:
         if name.startswith(prefix) and (not name.endswith('crdownload')) and os.path.isfile(path + '\\' + name):
             # can use match case here after python 3.10
