@@ -222,7 +222,7 @@ class Downloader(Calendar, SiteSpace):
             actions.perform()
             # time.sleep(1)
             pyautogui.hotkey('ctrl', 's')
-            # time.sleep(1)
+            time.sleep(1)
             pyautogui.typewrite(['enter'])
             # time.sleep(1)
             if _ == id_list[-1]:

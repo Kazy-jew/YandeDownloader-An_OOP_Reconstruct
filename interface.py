@@ -28,7 +28,7 @@ class Yande_re(Downloader):
     # download
     def bulk_dl(self):
         dates = self.input_dates()
-        self.multi_dates(dates)
+        self.sln_multi_dates(dates)
         # return
         original_id = archive.get_id(dates)
         id_list = original_id
@@ -154,9 +154,9 @@ class Konachan(Downloader):
 
     def bulk_dl(self):
         dates = self.input_dates()
-        self.multi_dates(dates)
+        self.sln_multi_dates(dates)
         id_list = archive.get_id(dates)
-        print(id_list)
+        # print(id_list)
         self.downloader_k(dates, id_list)
 
     def chk_dl(self):

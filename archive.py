@@ -9,8 +9,9 @@ from calendargen import Calendar
 
 # for windows
 def syspath():
-    dl_path = os.path.expanduser('~')
-    dl_path = os.path.join(dl_path, r'\Downloads')
+    # dl_path = os.path.expanduser('~')
+    # dl_path = os.path.join(dl_path, r'\Downloads')
+    dl_path = r'D:\Konachan [191109'
     return dl_path
 
 
@@ -156,7 +157,7 @@ def move(dates, prefix='yande.re', updates=None):
         for m in dates:
             with open('./current_dl/{}-{}.txt'.format(curt_year, m)) as r:
                 pair = r.read().splitlines()
-            folder = prefix + ' ' + m.replace('-', '.')
+            folder = prefix + ' ' + curt_year + ' ' + m.replace('-', '.')
             if not os.path.exists(os.path.join(path, folder)):
                 os.makedirs(os.path.join(path, folder))
             if len(list2) == 0:
