@@ -7,7 +7,7 @@ if not os.path.exists('./current_dl'):
 
 class Calendar:
     def __init__(self):
-        self.year = 2021
+        self.year = 2022
         self.date_list = []
 
     def set_year(self, year):

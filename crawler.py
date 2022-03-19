@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException as TE
+from selenium.common.exceptions import NoSuchElementException as NSEE
 from selenium.webdriver.common.action_chains import ActionChains
 from lxml import html
 from colorama import Fore, Style
@@ -148,9 +149,12 @@ class Downloader(Calendar, SiteSpace):
             else:
                 url = self.site_link.format(1, self.year, n)
                 driver.get(url)
-                pages_num_element = driver.find_element(By.XPATH, '//*[@id="paginator"]/div')
+                try:
+                    pages_num_element = driver.find_element(By.XPATH, '//*[@id="paginator"]/div')
+                    pages_num = int(pages_num_element.text.split(' ')[-3])
+                except NSEE:
+                    pages_num = 1
                 page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
-                pages_num = int(pages_num_element.text.split(' ')[-3])
                 print('Date {}-{} has {} pages'.format(self.year, n, pages_num))
                 date_list += [x.get_attribute('id') for x in page_img]
                 if pages_num > 1:
@@ -160,11 +164,11 @@ class Downloader(Calendar, SiteSpace):
                         page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                         date_list += [x.get_attribute('id') for x in page_img]
                 date_list = [w.replace('p', '') for w in date_list]
-                dates_list += date_list
                 with open(os.path.join(download_folder, '{}.txt'.format(url.split('%3A')[-1])), 'w') as f:
                     for item in date_list:
                         f.write('{}\n'.format(item))
                 print('{}...done'.format(url.split('%3A')[-1]))
+            dates_list += date_list
         with open(os.path.join(download_folder, '{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1])), 'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
@@ -203,32 +207,33 @@ class Downloader(Calendar, SiteSpace):
         return
 
     # selenium 
-    def sln_download(self, id_list):
+    def sln_download(self, id_list, retry, script=None):
         driver = Downloader.sln_chrome()
         print('start downloading...')
         for _ in tqdm(id_list):
             url = self.post_link.format(_)
             driver.get(url)
             wait = WebDriverWait(driver, 3)
-            try:
-                img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="png"]')))
-            except TE:
+            if not script:
                 try:
-                    img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="highres"]')))
-                except:
-                    continue
-            actions = ActionChains(driver)
-            actions.click(img)
-            actions.perform()
-            # time.sleep(1)
-            pyautogui.hotkey('ctrl', 's')
-            time.sleep(1)
-            pyautogui.typewrite(['enter'])
-            # time.sleep(1)
+                    img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="png"]')))
+                except TE:
+                    try:
+                        img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="highres"]')))
+                    except:
+                        continue
+                actions = ActionChains(driver)
+                actions.click(img)
+                actions.perform()
+                # time.sleep(1)
+                pyautogui.hotkey('ctrl', 's')
+                time.sleep(1)
+                pyautogui.typewrite(['enter'])
+            time.sleep(1 + retry*5)
             if _ == id_list[-1]:
                 time.sleep(20)
             if len(id_list) == 1:
-                time.sleep(90)
+                time.sleep(100)
         print('download successful')
         driver.close()
         return

@@ -43,9 +43,10 @@ class Yande_re(Downloader):
             print('invalid input !')
 
     # check unfinished
-    def chk_dl(self):
+    def chk_dl(self, eigenvalue=1):
         with open('./current_dl/dl_date.txt', 'r') as r:
             dates = r.read().splitlines()
+        dates = [x.replace(f'{self.year}-', '') for x in dates if str(self.year) in x]
         original_id = archive.check_dl(dates)
         remain_id = archive.remain_id()
         self.downloader_y(dates, original_id, remain_id)
@@ -62,11 +63,13 @@ class Yande_re(Downloader):
     # check unfinished update
     def update_chk_dl(self):
         eigenvalue = 2
-        with open('./current_dl/dl_date.txt', 'r') as r:
-            dates = r.read().splitlines()
-        original_id = archive.check_dl(dates)
-        remain_id = archive.remain_id()
-        self.downloader_y(dates, original_id, remain_id, eigenvalue)
+        self.chk_dl(eigenvalue)
+        # with open('./current_dl/dl_date.txt', 'r') as r:
+        #     dates = r.read().splitlines()
+        # dates = [x.replace(f'{self.year}-', '') for x in dates if str(self.year) in x]
+        # original_id = archive.check_dl(dates)
+        # remain_id = archive.remain_id()
+        # self.downloader_y(dates, original_id, remain_id, eigenvalue)
 
     def downloader_y(self, dates, original_id, id_list, eigenvalue=1):
         # original_id: 初始id列表
@@ -78,7 +81,7 @@ class Yande_re(Downloader):
         count_num = 0
         fin = True
         while id_list:
-            self.sln_download(id_list)
+            self.sln_download(id_list, count_num)
             archive.check_dl(dates)
             id_list = archive.remain_id()
             count_num += 1
@@ -162,20 +165,24 @@ class Konachan(Downloader):
     def chk_dl(self):
         with open('./current_dl/dl_date.txt', 'r') as r:
             dates = r.read().splitlines()
+        dates = [x.replace(f'{self.year}-', '') for x in dates]
         print('check {}'.format([str(self.year) + '-' + x + '.txt' for x in dates]))
         archive.check_dl(dates, prefix='Konachan.com')
         id_list = archive.remain_id()
         self.downloader_k(dates, id_list)
 
     def downloader_k(self, dates, id_list):
+        retry = 0
         while id_list:
-            self.sln_download(id_list)
+            self.sln_download(id_list, retry, True)
             archive.check_dl(dates, prefix='Konachan.com')
+            retry += 1
             id_list = archive.remain_id()
-        archive.move(dates, prefix='Konachan.com')
+        # archive.move(dates, prefix='Konachan.com')
+        archive.month_mv(dates, prefix="Konachan.com")
         for _ in dates:
             os.remove('./current_dl/{}-{}.txt'.format(self.year, _))
-        os.remove('./current_dl/{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1]))
+        # os.remove('./current_dl/{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1]))
 
     def run(self):
         self.welcome()

@@ -11,7 +11,7 @@ from calendargen import Calendar
 def syspath():
     # dl_path = os.path.expanduser('~')
     # dl_path = os.path.join(dl_path, r'\Downloads')
-    dl_path = r'D:\Konachan [191109'
+    dl_path = r'D:\Konachantest'
     return dl_path
 
 
@@ -73,12 +73,11 @@ def rewrite(dates, new_list):
 
 # list3：初始id列表，list2: 已下载的id列表，list1: 下载的文件；返回初始列表, for yande.re
 def check_dl(dates, prefix='yande.re'):
-    # print(path)
+    print(dates[0], dates[-1])
     list1 = os.listdir(path)
     list2 = []
     list3 = []
-    if (not os.path.exists("./current_dl/dl_date.txt")) or \
-            (not os.path.exists(f'./current_dl/{curt_year}-{dates[0]}_{curt_year}-{dates[-1]}')):
+    if (not os.path.exists("./current_dl/dl_date.txt")) or (not os.path.exists('./current_dl/{0}-{1}_{0}-{2}.txt'.format(curt_year, dates[0], dates[-1]))):
         print('nothing remain to be downloaded')
         return
     for name in list1:
@@ -150,6 +149,24 @@ def flush_all():
     return
 
 
+# archive image file by month
+def month_mv(dates, prefix='yande.re', updates=None):
+    list1 = os.listdir(path)
+    list2 = []
+    for i in list1:
+        if i.startswith(prefix) and (not i.endswith('crdownload')) and os.path.isfile(path + '\\' + i):
+            list2.append(i)
+    month = dates[0].split('-')[0]
+    if not updates:
+        folder = prefix + ' ' + str(curt_year) + '.' + month
+        if not os.path.exists(os.path.join(path, folder)):
+            os.makedirs(os.path.join(path, folder))
+        for _ in list2:
+            shutil.move(os.path.join(path, _), os.path.join(path, folder))
+    else:
+        pass
+
+
 # move image file only, not id list file
 def move(dates, prefix='yande.re', updates=None):
     list1 = os.listdir(path)
@@ -161,7 +178,7 @@ def move(dates, prefix='yande.re', updates=None):
         for m in dates:
             with open('./current_dl/{}-{}.txt'.format(curt_year, m)) as r:
                 pair = r.read().splitlines()
-            folder = prefix + ' ' + curt_year + ' ' + m.replace('-', '.')
+            folder = prefix + ' ' + str(curt_year) + '.' + m.replace('-', '.')
             if not os.path.exists(os.path.join(path, folder)):
                 os.makedirs(os.path.join(path, folder))
             if len(list2) == 0:
