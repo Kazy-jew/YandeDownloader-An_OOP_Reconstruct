@@ -157,10 +157,11 @@ class Konachan(Downloader):
 
     def bulk_dl(self):
         dates = self.input_dates()
-        self.sln_multi_dates(dates)
-        id_list = archive.get_id(dates)
+        self.sln_multi_dates(dates, True)
+        self.chk_dl()
+        # id_list = archive.get_id(dates)
         # print(id_list)
-        self.downloader_k(dates, id_list)
+        # self.downloader_k(dates, id_list)
 
     def chk_dl(self):
         with open('./current_dl/dl_date.txt', 'r') as r:

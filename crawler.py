@@ -130,7 +130,7 @@ class Downloader(Calendar, SiteSpace):
             return list(set(id_list) - set(id_to_remove))
 
     # selenium realization of multi_dates, for ip restriction of anti-crawler
-    def sln_multi_dates(self, dates):
+    def sln_multi_dates(self, dates, script=None):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
