@@ -157,12 +157,16 @@ class Downloader(Calendar, SiteSpace):
                 page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                 print('Date {}-{} has {} pages'.format(self.year, n, pages_num))
                 date_list += [x.get_attribute('id') for x in page_img]
+                if script:
+                    time.sleep(30)
                 if pages_num > 1:
                     for i in range(2, pages_num+1):
                         url = self.site_link.format(i, self.year, n)
                         driver.get(url)
                         page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                         date_list += [x.get_attribute('id') for x in page_img]
+                        if script:
+                            time.sleep(30)
                 date_list = [w.replace('p', '') for w in date_list]
                 with open(os.path.join(download_folder, '{}.txt'.format(url.split('%3A')[-1])), 'w') as f:
                     for item in date_list:
