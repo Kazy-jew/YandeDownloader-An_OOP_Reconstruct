@@ -18,9 +18,6 @@ class Calendar:
         date_lis = []
         for i in range(delta.days+1):
             date_lis.append(str(start+timedelta(days=i)))
-        with open('./current_dl/dl_date.txt', 'w') as f:
-            for _ in date_lis:
-                f.write('{}\n'.format(_))
         date_lis = [_.replace('{}-'.format(self.year), '') for _ in date_lis]
         return date_lis
 
@@ -61,6 +58,9 @@ class Calendar:
             else:
                 print("Invalid Form !")
         print(self.date_list)
+        with open('./current_dl/dl_date.txt', 'w') as f:
+            for _ in self.date_list:
+                f.write('{}-{}\n'.format(self.year, _))
         return self.date_list
 
 
@@ -68,5 +68,5 @@ if __name__ == "__main__":
     now = datetime.now()
     nowdate = now.date()
     then = date(2021, 7, 15)
-    delta = nowdate - then
-    print(now, then, delta)
+    delta_ = nowdate - then
+    print(now, then, delta_)
