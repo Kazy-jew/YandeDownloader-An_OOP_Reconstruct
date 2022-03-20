@@ -133,8 +133,9 @@ class Arch(SiteSpace):
     def flush_update(self, dates):
         Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         for _ in dates:
-            os.replace('./current_dl/{}.{}-{}.txt'.format(self.site, curt_year, _), './namelist_date/{}/nl_{}-{}.txt'.format(self.site, curt_year, _))
-            # os.replace('./current_dl/{}-{}.txt'.format(curt_year, _), './namelist_date/nl_{}.txt'.format(_))
+            Path('./current_dl/{}.{}-{}.txt'.format(self.site, curt_year, _)).\
+                replace('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, curt_year, _))
+        shutil.rmtree('./current_dl', ignore_errors=True)
         return
 
     # copy date id files to namelist folder
@@ -220,3 +221,4 @@ class Arch(SiteSpace):
 if __name__ == "__main__":
     # pass
     Arch().flush_all()
+

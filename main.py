@@ -2,7 +2,6 @@ from interface import Yande_re, Konachan, Minitokyo
 
 
 def run_main():
-    site_crawler = None
     console_log = input("""Please Select Downloader(default: yande.re, enter q to quit)
     1.yande.re    2.konachan   3.minitokyo \nEnter you choice: """)
     if console_log in ['2', 'k', 'konachan', 'konachan.com']:
@@ -10,7 +9,7 @@ def run_main():
     elif console_log in ['3', 'm', 'minitokyo']:
         site_crawler = Minitokyo()
     elif console_log == 'q':
-        exit()
+        raise SystemExit(1)
     else:
         site_crawler = Yande_re()
     site_crawler.run()

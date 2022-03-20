@@ -127,7 +127,7 @@ class Yande_re(Downloader, Arch):
                 global curt_year
                 curt_year = self.set_year(int(set_year))
             elif choice == '6':
-                exit()
+                raise SystemExit(1)
             else:
                 print('Invalid Input !')
 
@@ -193,7 +193,7 @@ class Konachan(Downloader, Arch):
             elif choice == '2':
                 self.chk_dl()
             elif choice == '3':
-                exit()
+                raise SystemExit(1)
             else:
                 print('Invalid Input')
 
