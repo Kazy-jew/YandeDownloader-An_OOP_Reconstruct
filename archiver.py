@@ -5,6 +5,7 @@ import re
 import os
 import shutil
 from weburl import SiteSpace
+from pathlib import Path
 from calendargen import Calendar
 
 
@@ -31,7 +32,7 @@ class Arch(SiteSpace):
             # 更新下载日期范围
             with open('./current_dl/{}.dl_date.txt'.format(self.site), 'w') as dl:
                 for _ in dates:
-                    dl.write('{}\n'.format(_))
+                    dl.write('{}-{}\n'.format(curt_year, _))
             with open('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, curt_year, dates[0], dates[-1])) as f:
                 id_list += f.read().splitlines()
         else:
@@ -77,6 +78,8 @@ class Arch(SiteSpace):
         list1 = os.listdir(path)
         list2 = []
         list3 = []
+        # print(dates, f"./current_dl/{self.site}.dl_date.txt")
+        # raise Exception('stop here')
         if (not os.path.exists(f"./current_dl/{self.site}.dl_date.txt")) or (not os.path.exists('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, curt_year, dates[0], dates[-1]))):
             raise Exception('No date or date-lists file !!')
         for name in list1:
@@ -104,11 +107,16 @@ class Arch(SiteSpace):
 
     def update(self, dates):
         dates_list = []
+        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+        Path(f'./updated_list/{self.site}').mkdir(parents=True, exist_ok=True)
         for i in dates:
-            with open('./current_dl/{}.{}-{}.txt'.format(self.site, curt_year, i)) as p:
-                li1 = p.read().splitlines()
-            with open('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, curt_year, i)) as q:
-                li2 = q.read().splitlines()
+            try:
+                with open('./current_dl/{}.{}-{}.txt'.format(self.site, curt_year, i)) as p:
+                    li1 = p.read().splitlines()
+                with open('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, curt_year, i)) as q:
+                    li2 = q.read().splitlines()
+            except FileNotFoundError:
+                return 'Specific File not Found'
             updated_img = list(set(li1) - set(li2))
             dates_list += updated_img
             if updated_img:
@@ -123,16 +131,19 @@ class Arch(SiteSpace):
         return dates_list
 
     def flush_update(self, dates):
+        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         for _ in dates:
             os.replace('./current_dl/{}.{}-{}.txt'.format(self.site, curt_year, _), './namelist_date/{}/nl_{}-{}.txt'.format(self.site, curt_year, _))
             # os.replace('./current_dl/{}-{}.txt'.format(curt_year, _), './namelist_date/nl_{}.txt'.format(_))
         return
 
+    # copy date id files to namelist folder
     def flush_all(self):
+        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         list1 = os.listdir('./current_dl')
         list2 = []
         for i in list1:
-            if i.startswith('{}.{}'.format(self.site, curt_year)):
+            if i.startswith('{}.{}'.format(self.site, curt_year)) and ("_" not in i):
                 list2.append(i)
         for j in list2:
             date = re.sub(r'\.txt$', '', '{}-{}'.format(j.split('-')[-2], j.split('-')[-1]))
@@ -141,6 +152,12 @@ class Arch(SiteSpace):
             with open('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, curt_year, date), 'w') as f:
                 for _ in list3:
                     f.write('{}\n'.format(_))
+        tip = input('remove original files?')
+        print(list2)
+        if tip == '':
+            print('deleting...')
+            [Path(f'./current_dl/{x}').unlink(missing_ok=True) for x in list2]
+            print('done')
         return
 
     # archive image file by month
@@ -201,4 +218,5 @@ class Arch(SiteSpace):
 
 
 if __name__ == "__main__":
-    pass
+    # pass
+    Arch().flush_all()

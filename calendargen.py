@@ -69,8 +69,9 @@ class Calendar(SiteSpace):
 
 
 if __name__ == "__main__":
-    now = datetime.now()
-    nowdate = now.date()
-    then = date(2021, 7, 15)
-    delta_ = nowdate - then
-    print(now, then, delta_)
+    # now = datetime.now()
+    # nowdate = now.date()
+    # then = date(2021, 7, 15)
+    # delta_ = nowdate - then
+    # print(now, then, delta_)
+    Calendar().input_dates()

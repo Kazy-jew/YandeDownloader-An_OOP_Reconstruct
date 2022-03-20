@@ -76,7 +76,7 @@ class Yande_re(Downloader, Arch):
         count_num = 0
         fin = True
         while id_list:
-            self.sln_download(id_list, count_num, js=True)
+            self.sln_download(id_list, count_num, True)
             self.check_dl(dates)
             id_list = self.remain_id()
             count_num += 1

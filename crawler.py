@@ -131,7 +131,7 @@ class Downloader(Calendar):
             return list(set(id_list) - set(id_to_remove))
 
     # selenium realization of multi_dates, for ip restriction of anti-crawler
-    def sln_multi_dates(self, dates, script=None):
+    def sln_multi_dates(self, dates, js=None):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
@@ -159,7 +159,7 @@ class Downloader(Calendar):
                 print('Date {}-{} has {} pages'.format(self.year, n, pages_num))
                 date_list += [x.get_attribute('id') for x in page_img]
                 # print(self.site, (script and self.site == 'Konachan'))
-                if script and self.site == 'Konachan':
+                if js and self.site == 'Konachan':
                     time.sleep(15)
                 if pages_num > 1:
                     for i in range(2, pages_num + 1):
@@ -167,7 +167,7 @@ class Downloader(Calendar):
                         driver.get(url)
                         page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                         date_list += [x.get_attribute('id') for x in page_img]
-                        if script and self.site == 'Konachan':
+                        if js and self.site == 'Konachan':
                             time.sleep(15)
                 date_list = [w.replace('p', '') for w in date_list]
                 with open(os.path.join(download_folder, '{}.{}.txt'.format(self.site, url.split('%3A')[-1])), 'w') as f:
@@ -221,7 +221,7 @@ class Downloader(Calendar):
             url = self.post_link.format(_)
             driver.get(url)
             wait = WebDriverWait(driver, 3)
-            if not script:
+            if not js:
                 try:
                     img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="png"]')))
                 except TE:
