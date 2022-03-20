@@ -23,10 +23,10 @@ import time
 import urllib
 from calendargen import Calendar
 from weburl import SiteSpace
-from archive import syspath
+from archiver import syspath
 
 
-class Downloader(Calendar, SiteSpace):
+class Downloader(Calendar):
 
     def __init__(self):
         super(Downloader, self).__init__()
@@ -62,9 +62,9 @@ class Downloader(Calendar, SiteSpace):
 
             date_list = []
             # 已经下载完成的列表不重复下载
-            if os.path.exists('./current_dl/{}-{}.txt'.format(self.year, n)):
+            if os.path.exists('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, n)):
                 print('list {} already downloaded...'.format(n))
-                with open('./current_dl/{}-{}.txt'.format(self.year, n), 'r') as r:
+                with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
                 # print('in else')
@@ -80,21 +80,22 @@ class Downloader(Calendar, SiteSpace):
                     # tree = html.fromstring(source)
                     page_ = requests.get(url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
-                    if self.tag == 1:
+                    if self.tag == 'yande':
                         mark_tag = tree.xpath('//*[@id="post-list"]/div[2]/div[4]/p/text()')
-                    elif self.tag == 2:
+                    elif self.tag == 'konachan':
                         mark_tag = tree.xpath('//*[@id="post-list"]/div[3]/div[4]/p/text()')
                     if not mark_tag:
                         date_list += tree.xpath('//*[@id="post-list-posts"]/li/@id')
                     elif mark_tag == ['Nobody here but us chickens!']:
                         date_list = [w.replace('p', '') for w in date_list]
                         break
-                with open(os.path.join(download_folder, '{}.txt'.format(url.split('%3A')[-1])), 'w') as f:
+                with open(os.path.join(download_folder, '{}.{}.txt'.format(self.site, url.split('%3A')[-1])), 'w') as f:
                     for item in date_list:
                         f.write('{}\n'.format(item))
                 print('{}...done'.format(url.split('%3A')[-1]))
             dates_list += date_list
-        with open(os.path.join(download_folder, '{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1])), 'w') as f:
+        with open(os.path.join(download_folder,
+                               '{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1])), 'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
         return
@@ -142,9 +143,9 @@ class Downloader(Calendar, SiteSpace):
             # id list of a date
             date_list = []
             # 已经下载完成的列表不重复下载
-            if os.path.exists('./current_dl/{}-{}.txt'.format(self.year, n)):
+            if os.path.exists('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, n)):
                 print('list {} already downloaded...'.format(n))
-                with open('./current_dl/{}-{}.txt'.format(self.year, n), 'r') as r:
+                with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
                 url = self.site_link.format(1, self.year, n)
@@ -157,23 +158,25 @@ class Downloader(Calendar, SiteSpace):
                 page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                 print('Date {}-{} has {} pages'.format(self.year, n, pages_num))
                 date_list += [x.get_attribute('id') for x in page_img]
-                if script:
-                    time.sleep(30)
+                # print(self.site, (script and self.site == 'Konachan'))
+                if script and self.site == 'Konachan':
+                    time.sleep(15)
                 if pages_num > 1:
-                    for i in range(2, pages_num+1):
+                    for i in range(2, pages_num + 1):
                         url = self.site_link.format(i, self.year, n)
                         driver.get(url)
                         page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                         date_list += [x.get_attribute('id') for x in page_img]
-                        if script:
-                            time.sleep(30)
+                        if script and self.site == 'Konachan':
+                            time.sleep(15)
                 date_list = [w.replace('p', '') for w in date_list]
-                with open(os.path.join(download_folder, '{}.txt'.format(url.split('%3A')[-1])), 'w') as f:
+                with open(os.path.join(download_folder, '{}.{}.txt'.format(self.site, url.split('%3A')[-1])), 'w') as f:
                     for item in date_list:
                         f.write('{}\n'.format(item))
                 print('{}...done'.format(url.split('%3A')[-1]))
             dates_list += date_list
-        with open(os.path.join(download_folder, '{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1])), 'w') as f:
+        with open(os.path.join(download_folder, '{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1])),
+                  'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
         driver.close()
@@ -211,7 +214,7 @@ class Downloader(Calendar, SiteSpace):
         return
 
     # selenium 
-    def sln_download(self, id_list, retry, script=None):
+    def sln_download(self, id_list, retry, js=None):
         driver = Downloader.sln_chrome()
         print('start downloading...')
         for _ in tqdm(id_list):
@@ -224,7 +227,7 @@ class Downloader(Calendar, SiteSpace):
                 except TE:
                     try:
                         img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="highres"]')))
-                    except:
+                    except NSEE:
                         continue
                 actions = ActionChains(driver)
                 actions.click(img)
@@ -233,9 +236,9 @@ class Downloader(Calendar, SiteSpace):
                 pyautogui.hotkey('ctrl', 's')
                 time.sleep(1)
                 pyautogui.typewrite(['enter'])
-            time.sleep(1 + retry*5)
-            if _ == id_list[-1]:
-                time.sleep(20)
+            time.sleep(2 + retry * 5)
+            # if _ == id_list[-1]:
+            #     time.sleep(20)
             if len(id_list) == 1:
                 time.sleep(100)
         print('download successful')
@@ -297,8 +300,6 @@ class Downloader(Calendar, SiteSpace):
                 # time.sleep(3)
         driver.quit()
 
-
-
 # if __name__ == "__main__":
 #     pass
-    # Downloader.sln_multi_page()
+# Downloader.sln_multi_page()

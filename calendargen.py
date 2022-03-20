@@ -1,13 +1,16 @@
 from datetime import date, timedelta, datetime
+from weburl import SiteSpace
 import os
 
 if not os.path.exists('./current_dl'):
     os.mkdir('./current_dl')
 
 
-class Calendar:
+class Calendar(SiteSpace):
     def __init__(self):
+        super(Calendar, self).__init__()
         self.year = 2022
+        self.form = 'date'
         self.date_list = []
 
     def set_year(self, year):
@@ -26,6 +29,7 @@ class Calendar:
         while not self.date_list:
             date_in = [x for x in input('please input a date range (format: m or m/d/d or m/d/m/d for cross-months): ').split('/')]
             if len(date_in) == 1:
+                self.form = 'month'
                 if int(date_in[0]) != 12:
                     self.date_list = self.date_range(date(int('{}'.format(self.year)),
                                                           int('{:>2}'.format(date_in[0])),
@@ -58,7 +62,7 @@ class Calendar:
             else:
                 print("Invalid Form !")
         print(self.date_list)
-        with open('./current_dl/dl_date.txt', 'w') as f:
+        with open('./current_dl/{}.dl_date.txt'.format(self.site), 'w') as f:
             for _ in self.date_list:
                 f.write('{}-{}\n'.format(self.year, _))
         return self.date_list

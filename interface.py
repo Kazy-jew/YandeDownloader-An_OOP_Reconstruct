@@ -1,18 +1,18 @@
 from calendargen import Calendar
 from crawler import Downloader
-import archive
+from archiver import Arch
 import os
-from pprint import pprint
+# from pprint import pprint
 # import requests
 
 curt_year = Calendar().year
 
 
-class Yande_re(Downloader):
+class Yande_re(Downloader, Arch):
     
     def __init__(self):
         super(Yande_re, self).__init__()
-        self.set_link('yande')
+        self.set_site('yande')
 
     @staticmethod
     def welcome():
@@ -30,12 +30,13 @@ class Yande_re(Downloader):
         dates = self.input_dates()
         self.sln_multi_dates(dates)
         # return
-        original_id = archive.get_id(dates)
+        original_id = self.get_id(dates)
         id_list = original_id
-        sgl = input('Enter s to start or q to quit: \n(If encountered disk space issue and reselected date range,'
-                    'enter q to quit and select "download remaining")')
+        sgl = 's'  # input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
+        # reselected date range, '
+        # 'enter q to quit and select "download remaining")')
         if sgl == 's':
-            self.downloader_y(dates, original_id, id_list)
+            self.downloader_y(dates, original_id, id_list, eigenvalue=1)
         elif sgl == 'q':
             print('download aborted')
             return
@@ -44,34 +45,28 @@ class Yande_re(Downloader):
 
     # check unfinished
     def chk_dl(self, eigenvalue=1):
-        with open('./current_dl/dl_date.txt', 'r') as r:
+        with open('./current_dl/{}.dl_date.txt'.format(self.site), 'r') as r:
             dates = r.read().splitlines()
         dates = [x.replace(f'{self.year}-', '') for x in dates if str(self.year) in x]
-        original_id = archive.check_dl(dates)
-        remain_id = archive.remain_id()
-        self.downloader_y(dates, original_id, remain_id)
+        original_id = self.check_dl(dates)
+        remain_id = self.remain_id()
+        self.downloader_y(dates, original_id, remain_id, eigenvalue)
 
     # check update
     def update_chk(self):
         eigenvalue = 2
         dates = self.input_dates()
         self.multi_dates(dates)
-        original_id = archive.update(dates)
-        update_id = archive.get_id(dates)
+        original_id = self.update(dates)
+        update_id = self.get_id(dates)
         self.downloader_y(dates, original_id, update_id, eigenvalue)
 
     # check unfinished update
     def update_chk_dl(self):
         eigenvalue = 2
         self.chk_dl(eigenvalue)
-        # with open('./current_dl/dl_date.txt', 'r') as r:
-        #     dates = r.read().splitlines()
-        # dates = [x.replace(f'{self.year}-', '') for x in dates if str(self.year) in x]
-        # original_id = archive.check_dl(dates)
-        # remain_id = archive.remain_id()
-        # self.downloader_y(dates, original_id, remain_id, eigenvalue)
 
-    def downloader_y(self, dates, original_id, id_list, eigenvalue=1):
+    def downloader_y(self, dates, original_id, id_list, eigenvalue):
         # original_id: 初始id列表
         # id_list: 当前列表(需要下载的列表)
         # eigenvalue的值(1 or 2)用来区别1:初次下载时/ 2: update时, 下载完成后文件夹的创建和文件的移动
@@ -81,9 +76,9 @@ class Yande_re(Downloader):
         count_num = 0
         fin = True
         while id_list:
-            self.sln_download(id_list, count_num)
-            archive.check_dl(dates)
-            id_list = archive.remain_id()
+            self.sln_download(id_list, count_num, js=True)
+            self.check_dl(dates)
+            id_list = self.remain_id()
             count_num += 1
             print('Retry times left:', 4 - count_num)
             # 退出，同时检查源网页图片是否已被删除
@@ -96,22 +91,22 @@ class Yande_re(Downloader):
             print('All images downloaded successfully')
             if id_list:
                 new_list = list(set(original_list) - set(id_list))
-                archive.rewrite(dates, new_list)
+                self.rewrite(dates, new_list)
             if eigenvalue == 1:
-                archive.move(dates)
+                self.move(dates)
             else:
-                archive.move(dates, updates=True)
-            archive.flush_update(dates)
+                self.move(dates, updates=True)
+            self.flush_update(dates)
         # 下载失败时，检查 & 下载或直接归档
         else:
             print('Please check the info above')
             tsuzuku = input("Do you want to proceed archiving with broken downloads? s to proceed any else to quit: ")
             if tsuzuku == 's':
                 if eigenvalue == 1:
-                    archive.move(dates)
+                    self.move(dates)
                 else:
-                    archive.move(dates, updates=True)
-                archive.flush_update(dates)
+                    self.move(dates, updates=True)
+                self.flush_update(dates)
             else:
                 return
 
@@ -137,11 +132,11 @@ class Yande_re(Downloader):
                 print('Invalid Input !')
 
 
-class Konachan(Downloader):
+class Konachan(Downloader, Arch):
 
     def __init__(self):
         super(Konachan, self).__init__()
-        self.set_link('konachan')
+        self.set_site('konachan')
 
     @staticmethod
     def welcome():
@@ -164,26 +159,30 @@ class Konachan(Downloader):
         # self.downloader_k(dates, id_list)
 
     def chk_dl(self):
-        with open('./current_dl/dl_date.txt', 'r') as r:
+        with open('./current_dl/{}.dl_date.txt'.format(self.site), 'r') as r:
             dates = r.read().splitlines()
         dates = [x.replace(f'{self.year}-', '') for x in dates]
-        print('check {}'.format([str(self.year) + '-' + x + '.txt' for x in dates]))
-        archive.check_dl(dates, prefix='Konachan.com')
-        id_list = archive.remain_id()
+        print(dates)
+        print('check {}'.format([self.site + '.' + str(self.year) + '-' + x + '.txt' for x in dates]))
+        self.check_dl(dates)
+        id_list = self.remain_id()
         self.downloader_k(dates, id_list)
 
     def downloader_k(self, dates, id_list):
         retry = 0
         while id_list:
             self.sln_download(id_list, retry, True)
-            archive.check_dl(dates, prefix='Konachan.com')
+            self.check_dl(dates)
             retry += 1
-            id_list = archive.remain_id()
+            id_list = self.remain_id()
         # archive.move(dates, prefix='Konachan.com')
-        archive.month_mv(dates, prefix="Konachan.com")
+        if self.form == 'month':
+            self.month_mv(dates)
+        else:
+            self.move(dates)
         for _ in dates:
-            os.remove('./current_dl/{}-{}.txt'.format(self.year, _))
-        # os.remove('./current_dl/{0}-{1}_{0}-{2}.txt'.format(self.year, dates[0], dates[-1]))
+            os.remove('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, _))
+        # os.remove('./current_dl/{}.{0}-{1}_{0}-{2}.txt'.format(self.site, self.year, dates[0], dates[-1]))
 
     def run(self):
         self.welcome()
@@ -202,7 +201,7 @@ class Konachan(Downloader):
 class Minitokyo(Downloader):
     def __init__(self):
         super(Minitokyo, self).__init__()
-        self.set_link('minitokyo')
+        self.set_site('minitokyo')
     latest_id = ''
     pass
 
