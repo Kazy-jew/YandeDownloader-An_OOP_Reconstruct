@@ -29,15 +29,14 @@ class Downloader(Calendar):
     def __init__(self):
         super(Downloader, self).__init__()
 
-    @staticmethod
-    def sln_chrome():
+    def sln_chrome(self):
         root = os.path.expanduser('~')
         chrome_data = r'AppData\Local\Google\Chrome\User Data'
         data_dir = os.path.join(root, chrome_data)
         chrome_options = webdriver.ChromeOptions()
         # change to your own chrome profile path if is not installed with default configuration,
         # you can find it in chrome browser under address chrome://version/
-        prefs = {'download.default_directory' : r'E:\yande2020'}
+        prefs = {'download.default_directory' : self.dl_path}
         chrome_options.add_argument("--user-data-dir={}".format(data_dir))
         # keep browser open
         chrome_options.add_experimental_option('prefs', prefs)
@@ -138,7 +137,7 @@ class Downloader(Calendar):
         # print(self.date_link)
         # id list of date range
         dates_list = []
-        driver = Downloader.sln_chrome()
+        driver = self.sln_chrome()
         for n in dates:
             # id list of a date
             date_list = []
@@ -215,7 +214,7 @@ class Downloader(Calendar):
 
     # selenium 
     def sln_download(self, id_list, retry, js=None):
-        driver = Downloader.sln_chrome()
+        driver = self.sln_chrome()
         print('start downloading...')
         for _ in tqdm(id_list):
             url = self.post_link.format(_)
@@ -248,7 +247,7 @@ class Downloader(Calendar):
     def sln_minitokyo(self, id_list):
         signal = 'confirm'
         circle_times = 0
-        driver = Downloader.sln_chrome()
+        driver = self.sln_chrome()
         # no need to login if use user profile:
         # with open('./login', 'r') as r:
         #     userinfo = r.read().splitlines()
