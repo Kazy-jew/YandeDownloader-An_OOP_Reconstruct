@@ -206,6 +206,8 @@ class Minitokyo(Downloader):
     pass
 
 
-# if __name__ == "__main__":
-#     requests.get('https://konachan.com/post?page=1&tags=date%3A2021-12-01')
+if __name__ == "__main__":
+    pass
+    # requests.get('https://konachan.com/post?page=1&tags=date%3A2021-12-01')
     # Konachan().run()
+    # print(Yande_re().year)
