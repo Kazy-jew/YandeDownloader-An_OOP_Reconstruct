@@ -1,18 +1,24 @@
+from settings import config, write_config
 from datetime import date, timedelta, datetime
-from weburl import SiteSpace
 from pathlib import Path
 
 
-class Calendar(SiteSpace):
+class Calendar():
     def __init__(self):
         super(Calendar, self).__init__()
-        self.year = 2022
         self.form = 'date'
         self.date_list = []
         Path('./current_dl').mkdir(exist_ok=True)
+    
+    def init_year(self):
+        self.year = config[self.tag]["year"]
 
-    def set_year(self, year):
-        self.year = year
+    def set_year(self):
+        y = input('please enter za year: ')
+        config[self.tag]["year"] = int(y)
+        print(f'set {self.site} download year to {y}...')
+        write_config()
+        return int(y)
 
     def date_range(self, start, end):
         delta = end - start

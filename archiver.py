@@ -3,33 +3,20 @@ retrieving & updating & merging the id list, archive id list after download fini
 """
 import re
 import os
-import json
 import shutil
-from weburl import SiteSpace
 from pathlib import Path
+from settings import config
 
 
-# for windows
-def syspath():
-    with open("config.json", "r") as r:
-        config = json.load(r)
-    print(config)
-    dl_path = config["location"]
-    Path(dl_path).mkdir(parents=True, exist_ok=True)
-    print(dl_path)
-    # config = {"location": dl_path}
-    # print(config)
-    # with open("config.json", "w") as o:
-    #     json.dump(config, o, indent=4)
-    return dl_path
-
-
-class Arch(SiteSpace):
+class Archive():
     def __init__(self):
-        super(Arch, self).__init__()
-        self.dl_path = syspath()
+        super(Archive, self).__init__()
 
-# get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载
+    def set_download_path(self):
+        self.dl_path = config[self.tag]["location"]
+        Path(self.dl_path).mkdir(parents=True, exist_ok=True)
+
+    # get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载
     def get_id(self, dates):
         id_list = []
         if dates:
@@ -224,5 +211,5 @@ class Arch(SiteSpace):
 
 
 if __name__ == "__main__":
-    syspath()
+    pass
     # Arch().flush_all()

@@ -1,18 +1,20 @@
-from calendargen import Calendar
+from weburl import Site
 from crawler import Downloader
-from archiver import Arch
+from archiver import Archive
+from settings import config
 import os
 # from pprint import pprint
 # import requests
 
-curt_year = Calendar().year
 
-
-class Yande_re(Downloader, Arch):
+class Yande_re(Site, Archive, Downloader):
     
     def __init__(self):
         super(Yande_re, self).__init__()
         self.set_site('yande')
+        self.init_year()
+        self.set_download_path()
+        print(config[self.tag])
 
     @staticmethod
     def welcome():
@@ -123,20 +125,21 @@ class Yande_re(Downloader, Arch):
             elif choice == '4':
                 self.update_chk_dl()
             elif choice == '5':
-                set_year = input('please enter za year:')
-                global curt_year
-                curt_year = self.set_year(int(set_year))
+                self.year = self.set_year()
             elif choice == '6':
                 raise SystemExit(1)
             else:
                 print('Invalid Input !')
 
 
-class Konachan(Downloader, Arch):
+class Konachan(Site, Archive, Downloader):
 
     def __init__(self):
         super(Konachan, self).__init__()
         self.set_site('konachan')
+        self.init_year()
+        self.set_download_path()
+        print(config[self.tag])
 
     @staticmethod
     def welcome():
@@ -144,10 +147,10 @@ class Konachan(Downloader, Arch):
         print('--------------------------------------')
         print('|************************************|')
         print('|*** 1.download   2.the remaining ***|')
-        print('|*** 3. exit                      ***|')
+        print('|*** 3.set year   4.exit          ***|')
         print('|************************************|')
         print('¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯')
-        # print(Konachan.site_link)
+        # print(Konachan.date_link)
         # pprint(dir(Konachan()))
 
     def bulk_dl(self):
@@ -193,12 +196,14 @@ class Konachan(Downloader, Arch):
             elif choice == '2':
                 self.chk_dl()
             elif choice == '3':
+                self.set_year()
+            elif choice == '4':
                 raise SystemExit(1)
             else:
                 print('Invalid Input')
 
 
-class Minitokyo(Downloader):
+class Minitokyo(Site, Archive, Downloader):
     def __init__(self):
         super(Minitokyo, self).__init__()
         self.set_site('minitokyo')

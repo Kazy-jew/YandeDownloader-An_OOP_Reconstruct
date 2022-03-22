@@ -1,40 +1,35 @@
-class WebURL:
-    konachan = ['https://konachan.com/post?page={}&tags=date%3A{}-{}',
-                'https://konachan.com/post/show/{}']
-    yande = ['https://yande.re/post?page={}&tags=date%3A{}-{}',
-             'https://yande.re/post/show/{}']
-    minitokyo = 'http://gallery.minitokyo.net/download/{}'
+from settings import config
 
 
-class SiteSpace(WebURL):
+class Site():
 
     def __init__(self, site='yande.re'):
         self.site = site
-        self.site_link = self.yande[0]
-        self.post_link = self.yande[1]
-        self.tag = 'yande'
-        self.prefix = 'yande.re'
+        self.date_link = config["yande"]["weburl"][0]
+        self.post_link = config["yande"]["weburl"][1]
+        self.tag = config["yande"]["tag"]
+        self.prefix = config["yande"]["prefix"]
 
     def set_site(self, site):
         if site in ['yande.re', 'yande', 'y']:
-            self.tag = 'yande'
-            self.site = 'yande.re'
-            self.prefix = 'yande.re'
-            self.site_link = self.yande[0]
-            self.post_link = self.yande[1]
+            self.tag = config["yande"]["tag"]
+            self.site = config["yande"]["site"]
+            self.prefix = config["yande"]["prefix"]
+            self.date_link = config["yande"]["weburl"][0]
+            self.post_link = config["yande"]["weburl"][1]
         elif site in ['konachan', 'konachan.com', 'k']:
-            self.tag = 'konachan'
-            self.site = 'Konachan'
-            self.prefix = 'Konachan.com'
-            self.site_link = self.konachan[0]
-            self.post_link = self.konachan[1]
+            self.tag = config["konachan"]["tag"]
+            self.site = config["konachan"]["site"]
+            self.prefix = config["konachan"]["prefix"]
+            self.date_link = config["konachan"]["weburl"][0]
+            self.post_link = config["konachan"]["weburl"][1]
         elif site in ['minitokyo', 'm']:
-            self.tag = 'minitokyo'
-            self.site = 'minitokyo'
-            self.site_link = ''
-            self.prefix = ''
-            self.post_link = self.minitokyo
+            self.tag = config["minitokyo"]["tag"]
+            self.site = config["minitokyo"]["site"]
+            self.date_link = ''
+            self.prefix = config["minitokyo"]["prefix"]
+            self.post_link = config["minitokyo"]["weburl"][0]
         else:
-            return
+            raise Exception("No a Valid Site!")
 
 

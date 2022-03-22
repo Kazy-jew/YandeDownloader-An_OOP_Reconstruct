@@ -1,7 +1,7 @@
 """
 Downloader core, including fetching id list from web, downloading images & managing
 the image list
-1.download dates: use site_link
+1.download dates: use date_link
 2.download id list: use post_link
 """
 from selenium import webdriver
@@ -22,8 +22,6 @@ import requests
 import time
 import urllib
 from calendargen import Calendar
-from weburl import SiteSpace
-from archiver import syspath
 
 
 class Downloader(Calendar):
@@ -39,8 +37,10 @@ class Downloader(Calendar):
         chrome_options = webdriver.ChromeOptions()
         # change to your own chrome profile path if is not installed with default configuration,
         # you can find it in chrome browser under address chrome://version/
+        prefs = {'download.default_directory' : r'E:\yande2020'}
         chrome_options.add_argument("--user-data-dir={}".format(data_dir))
         # keep browser open
+        chrome_options.add_experimental_option('prefs', prefs)
         chrome_options.add_experimental_option("detach", True)
         driver = webdriver.Chrome(options=chrome_options)
         return driver
@@ -50,7 +50,7 @@ class Downloader(Calendar):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
-        # print(self.site_link)
+        # print(self.date_link)
         # id list of date range
         dates_list = []
         # id list of a date
@@ -70,10 +70,10 @@ class Downloader(Calendar):
                 # print('in else')
                 mark_tag = None
                 for i in range(1, 36):
-                    if not self.site_link:
+                    if not self.date_link:
                         raise ValueError('no effect site link')
                     else:
-                        url = self.site_link.format(i, self.year, n)
+                        url = self.date_link.format(i, self.year, n)
                     # print(url)
                     # In selenium, you can use driver.page_source to get the same result
                     # source = driver.page_source (here source equals page_.content)
@@ -135,7 +135,7 @@ class Downloader(Calendar):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
-        # print(self.site_link)
+        # print(self.date_link)
         # id list of date range
         dates_list = []
         driver = Downloader.sln_chrome()
@@ -148,7 +148,7 @@ class Downloader(Calendar):
                 with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, n), 'r') as r:
                     date_list += r.read().splitlines()
             else:
-                url = self.site_link.format(1, self.year, n)
+                url = self.date_link.format(1, self.year, n)
                 driver.get(url)
                 try:
                     pages_num_element = driver.find_element(By.XPATH, '//*[@id="paginator"]/div')
@@ -163,7 +163,7 @@ class Downloader(Calendar):
                     time.sleep(15)
                 if pages_num > 1:
                     for i in range(2, pages_num + 1):
-                        url = self.site_link.format(i, self.year, n)
+                        url = self.date_link.format(i, self.year, n)
                         driver.get(url)
                         page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
                         date_list += [x.get_attribute('id') for x in page_img]
@@ -188,7 +188,7 @@ class Downloader(Calendar):
 
     # normal
     def download(self, id_list):
-        download_folder = self.site + ' ' + re.sub('[-]', '.', self.site_link.split('%3A')[-1])  # 创建下载文件夹
+        download_folder = self.site + ' ' + re.sub('[-]', '.', self.date_link.split('%3A')[-1])  # 创建下载文件夹
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
         print('start downloading...')
@@ -210,7 +210,7 @@ class Downloader(Calendar):
             with open(os.path.join(download_folder, name_modify), "wb") as file:  # 保存文件
                 file.write(data.content)
             time.sleep(2)
-        print('Download Succeed')
+        print('Download Successful')
         return
 
     # selenium 
@@ -246,7 +246,6 @@ class Downloader(Calendar):
         return
 
     def sln_minitokyo(self, id_list):
-        path = syspath()
         signal = 'confirm'
         circle_times = 0
         driver = Downloader.sln_chrome()
@@ -270,7 +269,7 @@ class Downloader(Calendar):
         # time.sleep(3)
         while signal == 'confirm':
             circle_times += 1
-            list1 = os.listdir(path)
+            list1 = os.listdir(self.path)
             minitokyo_downloaded = []
             for name in list1:
                 if name.endswith('jpg'):

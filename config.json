@@ -1,3 +1,34 @@
 {
-    "location": "E:\\yande2020"
+    "yande": {
+        "location": "E:\\yande2020",
+        "year": 2021,
+        "prefix": "yande.re",
+        "site": "yande.re",
+        "tag": "yande",
+        "weburl": [
+            "https://yande.re/post?page={}&tags=date%3A{}-{}",
+            "https://yande.re/post/show/{}"
+        ]
+    },
+    "konachan": {
+        "location": "",
+        "year": 2022,
+        "prefix": "Konachan.com",
+        "site": "Konachan.com",
+        "tag": "konachan",
+        "weburl": [
+            "https://konachan.com/post?page={}&tags=date%3A{}-{}",
+            "https://konachan.com/post/show/{}"
+        ]
+    },
+    "minitokyo": {
+        "location": "",
+        "prefix": "minitokyo.net",
+        "site": "minitokyo.net",
+        "tag": "minitokyo",
+        "lastId": 20000,
+        "weburl": [
+            "http://gallery.minitokyo.net/download/{}"
+        ]
+    }
 }
