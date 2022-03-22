@@ -203,7 +203,8 @@ class Arch(SiteSpace):
                         else:
                             name_id = item
                         if name_id in pair:
-                            shutil.move(os.path.join(path, item), os.path.join(path, folder))
+                            # shutil.move(os.path.join(path, item), os.path.join(path, folder, item))
+                            Path(os.path.join(path, item)).replace(os.path.join(path, folder, item))
         # for yande.re only
         else:
             folder = '{}.update_{}.{}-{}'.format(self.site, curt_year, dates[0].replace('-', ''), dates[-1].replace('-', ''))
@@ -219,6 +220,5 @@ class Arch(SiteSpace):
 
 
 if __name__ == "__main__":
-    # pass
-    Arch().flush_all()
-
+    pass
+    # Arch().flush_all()
