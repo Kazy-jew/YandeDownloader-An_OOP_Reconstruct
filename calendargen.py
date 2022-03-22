@@ -1,12 +1,14 @@
 from settings import config, write_config
 from datetime import date, timedelta, datetime
 from pathlib import Path
+from weburl import Site
 
 
-class Calendar():
+class Calendar(Site):
     def __init__(self):
         super(Calendar, self).__init__()
         self.form = 'date'
+        self.year = 2022
         self.date_list = []
         Path('./current_dl').mkdir(exist_ok=True)
     

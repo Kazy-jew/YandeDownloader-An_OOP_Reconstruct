@@ -1,7 +1,7 @@
 from settings import config
 
 
-class Site():
+class Site:
 
     def __init__(self, site='yande.re'):
         self.site = site

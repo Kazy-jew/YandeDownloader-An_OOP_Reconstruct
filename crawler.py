@@ -21,10 +21,10 @@ import re
 import requests
 import time
 import urllib
-from calendargen import Calendar
+from archiver import Archive
 
 
-class Downloader(Calendar):
+class Downloader(Archive):
 
     def __init__(self):
         super(Downloader, self).__init__()
@@ -268,7 +268,7 @@ class Downloader(Calendar):
         # time.sleep(3)
         while signal == 'confirm':
             circle_times += 1
-            list1 = os.listdir(self.path)
+            list1 = os.listdir(self.dl_path)
             minitokyo_downloaded = []
             for name in list1:
                 if name.endswith('jpg'):

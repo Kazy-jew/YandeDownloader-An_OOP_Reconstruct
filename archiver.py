@@ -5,12 +5,14 @@ import re
 import os
 import shutil
 from pathlib import Path
+from calendargen import Calendar
 from settings import config
 
 
-class Archive():
+class Archive(Calendar):
     def __init__(self):
         super(Archive, self).__init__()
+        self.dl_path = ''
 
     def set_download_path(self):
         self.dl_path = config[self.tag]["location"]

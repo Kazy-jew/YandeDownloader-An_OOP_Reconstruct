@@ -1,13 +1,10 @@
-from weburl import Site
 from crawler import Downloader
-from archiver import Archive
 from settings import config
 import os
 # from pprint import pprint
-# import requests
 
 
-class Yande_re(Site, Archive, Downloader):
+class Yande_re(Downloader):
     
     def __init__(self):
         super(Yande_re, self).__init__()
@@ -132,7 +129,7 @@ class Yande_re(Site, Archive, Downloader):
                 print('Invalid Input !')
 
 
-class Konachan(Site, Archive, Downloader):
+class Konachan(Downloader):
 
     def __init__(self):
         super(Konachan, self).__init__()
@@ -203,7 +200,7 @@ class Konachan(Site, Archive, Downloader):
                 print('Invalid Input')
 
 
-class Minitokyo(Site, Archive, Downloader):
+class Minitokyo(Downloader):
     def __init__(self):
         super(Minitokyo, self).__init__()
         self.set_site('minitokyo')
