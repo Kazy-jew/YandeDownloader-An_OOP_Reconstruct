@@ -72,6 +72,9 @@ class Archive(Calendar):
         list1 = os.listdir(self.dl_path)
         list2 = []
         list3 = []
+        data_folder = self.tag + "Data"
+        data_file = self.site + str(self.year) + '.' + self.date_list[0] + "_" + self.date_list[-1]
+        settings.read_data(data_folder, data_file)
         # print(dates, f"./current_dl/{self.site}.dl_date.txt")
         # raise Exception('stop here')
         if (not os.path.exists(f"./current_dl/{self.site}.dl_date.txt")) or (not os.path.exists('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1]))):
@@ -88,15 +91,23 @@ class Archive(Calendar):
         with open('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1])) as k:
             list3 += k.read().splitlines()
         diff = list(set(list3) - set(list2))
-        if 0 < len(diff) <= 10:
-            print('remain to be downloaded', diff)
+        if len(diff) > 0:
+            if len(diff) <= 10:
+                print('remain to be downloaded', diff)
+            else:
+                print('{} items remain'.format(len(diff)))
+
         else:
-            print('{} items remain'.format(len(diff)))
+            print('No images to download')
         with open(f'./current_dl/{self.site}.remain_dl.txt', 'w') as m:
             for _ in diff:
+                # print(_)
+                if settings.Img_data.get(_):
+                    settings.Img_data[_]["download_state"] = False
+                else:
+                    print(f"key {_} not find")
                 m.write('{}\n'.format(_))
-        if len(diff) == 0:
-            print('No images to download')
+        settings.write_data(data_folder, data_file)
         return list3
 
     def update(self, dates):

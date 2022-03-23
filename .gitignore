@@ -1,6 +1,4 @@
 
 __pycache__/
 .idea/
-*.pyc
-config.json
 config.json

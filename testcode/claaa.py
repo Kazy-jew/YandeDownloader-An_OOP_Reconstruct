@@ -82,3 +82,7 @@ dict3 = {}
 #     new1_dict1 = {i: new_dict1[i] for i in new_dict1 if i not in ['c', 'c1']}
 #     dict2[1].append(new1_dict1)
 #     print(dict2)
+print(dict2.get("new"))
+numbers = [4, 5, 7, 1, 3, 6, 9, 8, 0]
+output = numbers.sort()
+print("The Value in the output variable is:", output)

@@ -31,6 +31,7 @@ class Yande_re(Downloader):
         # return
         original_id = self.get_id(dates)
         id_list = original_id
+        settings.Img_data = {}
         sgl = 's'  # input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
         # reselected date range, '
         # 'enter q to quit and select "download remaining")')
@@ -47,6 +48,7 @@ class Yande_re(Downloader):
         with open('./current_dl/{}.dl_date.txt'.format(self.site), 'r') as r:
             dates = r.read().splitlines()
         dates = [x.replace(f'{self.year}-', '') for x in dates if str(self.year) in x]
+        self.date_list = dates
         original_id = self.check_dl(dates)
         remain_id = self.remain_id()
         self.downloader_y(dates, original_id, remain_id, eigenvalue)
