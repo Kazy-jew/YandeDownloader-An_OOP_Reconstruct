@@ -73,7 +73,8 @@ class Calendar(Site):
         else:
             print("Invalid Form !")
         print(self.date_list)
-        Path('./current_dl').mkdir(exist_ok=True)
+        if not Path('./current_dl').exists():
+            Path('./current_dl').mkdir(exist_ok=True)
         with open('./current_dl/{}.dl_date.txt'.format(self.site), 'w') as f:
             for _ in self.date_list:
                 f.write('{}-{}\n'.format(self.year, _))
