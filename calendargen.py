@@ -1,7 +1,7 @@
-from settings import config, write_config
 from datetime import date, timedelta, datetime
 from pathlib import Path
 from weburl import Site
+import settings
 
 
 class Calendar(Site):
@@ -10,16 +10,15 @@ class Calendar(Site):
         self.form = 'date'
         self.year = 2022
         self.date_list = []
-        Path('./current_dl').mkdir(exist_ok=True)
-    
+
     def init_year(self):
-        self.year = config[self.tag]["year"]
+        self.year = settings.config[self.tag]["year"]
 
     def set_year(self):
         y = input('please enter za year: ')
-        config[self.tag]["year"] = int(y)
+        settings.config[self.tag]["year"] = int(y)
         print(f'set {self.site} download year to {y}...')
-        write_config()
+        settings.write_config()
         return int(y)
 
     def date_range(self, start, end):
@@ -74,6 +73,7 @@ class Calendar(Site):
         else:
             print("Invalid Form !")
         print(self.date_list)
+        Path('./current_dl').mkdir(exist_ok=True)
         with open('./current_dl/{}.dl_date.txt'.format(self.site), 'w') as f:
             for _ in self.date_list:
                 f.write('{}-{}\n'.format(self.year, _))

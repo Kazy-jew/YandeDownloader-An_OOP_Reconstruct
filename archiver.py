@@ -4,9 +4,9 @@ retrieving & updating & merging the id list, archive id list after download fini
 import re
 import os
 import shutil
+import settings
 from pathlib import Path
 from calendargen import Calendar
-from settings import config
 
 
 class Archive(Calendar):
@@ -15,7 +15,7 @@ class Archive(Calendar):
         self.dl_path = ''
 
     def set_download_path(self):
-        self.dl_path = config[self.tag]["location"]
+        self.dl_path = settings.config[self.tag]["location"]
         Path(self.dl_path).mkdir(parents=True, exist_ok=True)
 
     # get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载

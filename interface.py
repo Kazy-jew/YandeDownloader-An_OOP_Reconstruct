@@ -1,5 +1,5 @@
 from crawler import Downloader
-from settings import config
+import settings
 import os
 # from pprint import pprint
 
@@ -11,7 +11,7 @@ class Yande_re(Downloader):
         self.set_site('yande')
         self.init_year()
         self.set_download_path()
-        print(config[self.tag])
+        print(settings.config[self.tag])
 
     @staticmethod
     def welcome():
@@ -136,7 +136,7 @@ class Konachan(Downloader):
         self.set_site('konachan')
         self.init_year()
         self.set_download_path()
-        print(config[self.tag])
+        print(settings.config[self.tag])
 
     @staticmethod
     def welcome():
