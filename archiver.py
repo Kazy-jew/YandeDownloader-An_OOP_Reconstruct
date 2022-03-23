@@ -16,7 +16,8 @@ class Archive(Calendar):
 
     def set_download_path(self):
         self.dl_path = settings.config[self.tag]["location"]
-        Path(self.dl_path).mkdir(parents=True, exist_ok=True)
+        if not Path(self.dl_path).exists():
+            Path(self.dl_path).mkdir(parents=True, exist_ok=True)
 
     # get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载
     def get_id(self, dates):
@@ -100,8 +101,10 @@ class Archive(Calendar):
 
     def update(self, dates):
         dates_list = []
-        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
-        Path(f'./updated_list/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./namelist_date/{self.site}').exists():
+            Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./updated_list/{self.site}').exists():
+            Path(f'./updated_list/{self.site}').mkdir(parents=True, exist_ok=True)
         for i in dates:
             try:
                 with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, i)) as p:
@@ -124,7 +127,8 @@ class Archive(Calendar):
         return dates_list
 
     def flush_update(self, dates):
-        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./namelist_date/{self.site}').exists():
+            Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         for _ in dates:
             Path('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, _)).\
                 replace('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, self.year, _))
@@ -133,7 +137,8 @@ class Archive(Calendar):
 
     # copy date id files to namelist folder
     def flush_all(self):
-        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./namelist_date/{self.site}').exists():
+            Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         list1 = os.listdir('./current_dl')
         list2 = []
         for i in list1:
