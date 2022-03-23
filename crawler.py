@@ -22,6 +22,7 @@ import requests
 import time
 import urllib
 from archiver import Archive
+import settings
 
 
 class Downloader(Archive):

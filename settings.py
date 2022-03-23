@@ -1,9 +1,10 @@
 import json
-
+from pathlib import Path
 
 with open("config.json", "r") as r:
     config = json.load(r)
-dat = {}
+
+Imgdat = {}
 
 
 def write_config():
@@ -11,6 +12,8 @@ def write_config():
         json.dump(config, o, indent=4)
 
 
-def write_data(name):
-    with open(f"{name}.json", "w") as o:
-        json.dump(dat, o, indent=4)
+def write_data(folder, file):
+    if not Path(f'./ImageData/{folder}').exists():
+        Path(f'./ImageData/{folder}').mkdir(parents=True, exist_ok=True)
+    with open(f"{file}.json", "w") as o:
+        json.dump(Imgdat, o, indent=4)
