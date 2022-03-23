@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException as TE
 from selenium.common.exceptions import NoSuchElementException as NSEE
 from selenium.webdriver.common.action_chains import ActionChains
+from datetime import datetime
 from lxml import html
 from colorama import Fore, Style
 from tqdm import tqdm
@@ -23,6 +24,7 @@ import time
 import urllib
 from archiver import Archive
 import settings
+import json
 
 
 class Downloader(Archive):
@@ -37,7 +39,7 @@ class Downloader(Archive):
         chrome_options = webdriver.ChromeOptions()
         # change to your own chrome profile path if is not installed with default configuration,
         # you can find it in chrome browser under address chrome://version/
-        prefs = {'download.default_directory' : self.dl_path}
+        prefs = {'download.default_directory': self.dl_path}
         chrome_options.add_argument("--user-data-dir={}".format(data_dir))
         # keep browser open
         chrome_options.add_experimental_option('prefs', prefs)
@@ -78,14 +80,18 @@ class Downloader(Archive):
                     # In selenium, you can use driver.page_source to get the same result
                     # source = driver.page_source (here source equals page_.content)
                     # tree = html.fromstring(source)
-                    page_ = requests.get(url, headers=headers, proxies=proxy_url)
+                    page_ = requests.get(
+                        url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
                     if self.tag == 'yande':
-                        mark_tag = tree.xpath('//*[@id="post-list"]/div[2]/div[4]/p/text()')
+                        mark_tag = tree.xpath(
+                            '//*[@id="post-list"]/div[2]/div[4]/p/text()')
                     elif self.tag == 'konachan':
-                        mark_tag = tree.xpath('//*[@id="post-list"]/div[3]/div[4]/p/text()')
+                        mark_tag = tree.xpath(
+                            '//*[@id="post-list"]/div[3]/div[4]/p/text()')
                     if not mark_tag:
-                        date_list += tree.xpath('//*[@id="post-list-posts"]/li/@id')
+                        date_list += tree.xpath(
+                            '//*[@id="post-list-posts"]/li/@id')
                     elif mark_tag == ['Nobody here but us chickens!']:
                         date_list = [w.replace('p', '') for w in date_list]
                         break
@@ -151,11 +157,13 @@ class Downloader(Archive):
                 url = self.date_link.format(1, self.year, n)
                 driver.get(url)
                 try:
-                    pages_num_element = driver.find_element(By.XPATH, '//*[@id="paginator"]/div')
+                    pages_num_element = driver.find_element(
+                        By.XPATH, '//*[@id="paginator"]/div')
                     pages_num = int(pages_num_element.text.split(' ')[-3])
                 except NSEE:
                     pages_num = 1
-                page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
+                page_img = driver.find_elements(
+                    By.XPATH, '//*[@id="post-list-posts"]/li')
                 print('Date {}-{} has {} pages'.format(self.year, n, pages_num))
                 date_list += [x.get_attribute('id') for x in page_img]
                 # print(self.site, (script and self.site == 'Konachan'))
@@ -165,7 +173,8 @@ class Downloader(Archive):
                     for i in range(2, pages_num + 1):
                         url = self.date_link.format(i, self.year, n)
                         driver.get(url)
-                        page_img = driver.find_elements(By.XPATH, '//*[@id="post-list-posts"]/li')
+                        page_img = driver.find_elements(
+                            By.XPATH, '//*[@id="post-list-posts"]/li')
                         date_list += [x.get_attribute('id') for x in page_img]
                         if js and self.site == 'Konachan':
                             time.sleep(15)
@@ -188,7 +197,8 @@ class Downloader(Archive):
 
     # normal
     def download(self, id_list):
-        download_folder = self.site + ' ' + re.sub('[-]', '.', self.date_link.split('%3A')[-1])  # 创建下载文件夹
+        download_folder = self.site + ' ' + \
+            re.sub('[-]', '.', self.date_link.split('%3A')[-1])  # 创建下载文件夹
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
         print('start downloading...')
@@ -200,7 +210,8 @@ class Downloader(Archive):
             page = requests.get(url, headers=headers, proxies=proxy_url)
             tree = html.fromstring(page.content)
             if tree.xpath('//*[@id="png"]/@href'):  # 从图片页面获得原图片文件元素xpath
-                source = tree.xpath('//*[@id="png"]/@href')  # 图片页面没有png格式, 更换xpath
+                # 图片页面没有png格式, 更换xpath
+                source = tree.xpath('//*[@id="png"]/@href')
             else:
                 source = tree.xpath('//*[@id="highres"]/@href')
             file_name = source[0].split('/')[-1]  # 从原图片地址的最后一段中获得图片描述的部分
@@ -213,20 +224,24 @@ class Downloader(Archive):
         print('Download Successful')
         return
 
-    # selenium 
+    # selenium
     def sln_download(self, id_list, retry, js=None):
         driver = self.sln_chrome()
         print('start downloading...')
         for _ in tqdm(id_list):
             url = self.post_link.format(_)
             driver.get(url)
+            source = driver.page_source
+            self.sln_getInfo(source, _)
             wait = WebDriverWait(driver, 3)
             if not js:
                 try:
-                    img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="png"]')))
+                    img = wait.until(EC.element_to_be_clickable(
+                        (By.XPATH, '//*[@id="png"]')))
                 except TE:
                     try:
-                        img = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="highres"]')))
+                        img = wait.until(EC.element_to_be_clickable(
+                            (By.XPATH, '//*[@id="highres"]')))
                     except NSEE:
                         continue
                 actions = ActionChains(driver)
@@ -288,9 +303,11 @@ class Downloader(Archive):
                 for _ in tqdm(diff):
                     url = self.post_link.format(_)
                     driver.get(url)
-                    location = driver.find_element(By.XPATH, '//*[@id="image"]/p/a')
+                    location = driver.find_element(
+                        By.XPATH, '//*[@id="image"]/p/a')
                     actions = ActionChains(driver)
-                    actions.move_to_element_with_offset(location, 100, 100).perform()
+                    actions.move_to_element_with_offset(
+                        location, 100, 100).perform()
                     actions.context_click().perform()
                     pyautogui.typewrite(['down', 'down', 'enter'])
                     time.sleep(0.8)
@@ -299,6 +316,89 @@ class Downloader(Archive):
                 # time.sleep(3)
         driver.quit()
 
-# if __name__ == "__main__":
-#     pass
-# Downloader.sln_multi_page()
+    def sln_getInfo(self, source, id):
+        id_data = {
+            id: {
+                "posts": [],
+                "pools": [],
+                "pool_posts": [],
+                "tags": None,
+                "date": list,
+                "download_state": bool
+            }
+        }
+        tree = html.fromstring(source)
+        description = tree.xpath(
+            '//*[@id="post-view"]/div[1]/text()')[0].strip()
+        if "delete" in description:
+            id_data = {
+                id: {
+                    "deleted": True,
+                    "description": re.sub(r'\n', '', description),
+                    "download_state": False
+                }
+            }
+        else:
+            imgInfo = tree.xpath('//*[@id="post-view"]/script/text()')
+            raw_string = imgInfo[0].strip()
+            rm_head = raw_string.replace('Post.register_resp(', '')
+            rm_tail = rm_head[:-2]
+            raw_data = json.loads(rm_tail)
+            check_list = ["id", "tags", "created_at", "updated_at", "score", "md5", "width",
+                          "height", "file_size", "file_ext", "file_url", "rating", "has_children", "parent_id"]
+            id_data[id]["posts"] = [
+                {i: x[i] for i in x if i in check_list} for x in raw_data["posts"]]
+            c_timestamp = raw_data["posts"][0]["created_at"]
+            date_data = [datetime.fromtimestamp(c_timestamp).year, datetime.fromtimestamp(
+                c_timestamp).month, datetime.fromtimestamp(c_timestamp).day]
+            id_data[id]["date"] = date_data
+            id_data[id]["download_state"] = True
+            id_data[id]["tags"] = raw_data["tags"]
+            if raw_data["pools"]:
+                id_data[id]["pools"] = [{i: x[i] for i in x if i not in [
+                    "user_id", "is_public"]} for x in raw_data["pools"]]
+            else:
+                id_data[id]["pools"] = []
+            if raw_data["pool_posts"]:
+                for _ in range(len(raw_data["pool_posts"])):
+                    id_data[id]["pool_posts"].append(
+                        {i: raw_data["pool_posts"][_][i] for i in raw_data["pool_posts"][_] if i != 'active'})
+            else:
+                id_data[id]["pool_posts"] = []
+            if raw_data["posts"][0]["has_children"]:
+                children_Info = tree.xpath('//*[@id="post-view"]/div[3]/a/text()')
+                children_post_id = [int(x) for x in children_Info[1:]]
+                id_data[id]["posts"][0]["children"] = children_post_id
+        settings.Imgdata.update(id_data)
+
+
+if __name__ == "__main__":
+    pass
+    # testurl = ['https://yande.re/post/show/208854', 'https://yande.re/post/show/650982',
+    #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
+    # testdriver = Downloader().sln_chrome()
+    # for _ in tqdm(testurl):
+    #     testdriver.get(_)
+    #     wait = WebDriverWait(testdriver, 3)
+    #     source = testdriver.page_source
+    #     img_id = _.split('/')[-1]
+    #     Downloader().sln_getInfo(source, img_id)
+    # with open("test5Image.json", "w") as o:
+    #     json.dump(settings.Imgdata, o, indent=4)
+    # tree = html.fromstring(source)
+    # imgInfo = tree.xpath('//*[@id="post-view"]/div[1]/text()')
+    # imgInfo = [int(x) for x in imgInfo[1:]]
+    # info = testdriver.find_element(By.XPATH, '//*[@id="post-view"]/script')
+    # info1 = testdriver.find_element(By.XPATH,  '/html/body/div[8]/div[1]/div[4]')
+    # Ink1 = info1.find_elements_by_tag_name('a')
+    # Ink1li = [x.get_attribute('href') for x in Ink1]
+    # info2 = testdriver.find_element(By.XPATH,  '/html/body/div[8]/div[1]/div[3]')
+    # Ink2 = info2.find_elements_by_tag_name('a')
+    # Ink2li = [x.get_attribute('href') for x in Ink2]
+    # info3 = testdriver.find_element(By.XPATH, '//*[@id="highres"]')
+    # info1txt = info1.text
+    # info2txt = info2.text
+    # print(info1.get_attribute('class'), '\n', info2.get_attribute('class'))
+    # print(info3.get_attribute('href'))
+    # print(re.sub(r'\n', '', imgInfo[0]))
+

@@ -85,6 +85,7 @@ if __name__ == "__main__":
     # now = datetime.now()
     # nowdate = now.date()
     then = date(2021, 7, 15)
+    print(datetime.fromtimestamp(1592661641).day)
     # delta_ = nowdate - then
     # print(now, then, delta_)
     # Calendar().input_dates()
