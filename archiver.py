@@ -4,17 +4,20 @@ retrieving & updating & merging the id list, archive id list after download fini
 import re
 import os
 import shutil
+import settings
 from pathlib import Path
-from settings import config
+from calendargen import Calendar
 
 
-class Archive():
+class Archive(Calendar):
     def __init__(self):
         super(Archive, self).__init__()
+        self.dl_path = ''
 
     def set_download_path(self):
-        self.dl_path = config[self.tag]["location"]
-        Path(self.dl_path).mkdir(parents=True, exist_ok=True)
+        self.dl_path = settings.config[self.site_tag]["location"]
+        if not Path(self.dl_path).exists():
+            Path(self.dl_path).mkdir(parents=True, exist_ok=True)
 
     # get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载
     def get_id(self, dates):
@@ -69,6 +72,10 @@ class Archive():
         list1 = os.listdir(self.dl_path)
         list2 = []
         list3 = []
+        data_folder = self.site_tag + "Data"
+        data_file = self.site + str(self.year) + '.' + \
+            self.date_list[0] + "_" + self.date_list[-1]
+        settings.read_data(data_folder, data_file)
         # print(dates, f"./current_dl/{self.site}.dl_date.txt")
         # raise Exception('stop here')
         if (not os.path.exists(f"./current_dl/{self.site}.dl_date.txt")) or (not os.path.exists('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1]))):
@@ -85,21 +92,33 @@ class Archive():
         with open('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1])) as k:
             list3 += k.read().splitlines()
         diff = list(set(list3) - set(list2))
-        if 0 < len(diff) <= 10:
-            print('remain to be downloaded', diff)
+        if len(diff) > 0:
+            if len(diff) <= 10:
+                print('remain to be downloaded', diff)
+            else:
+                print('{} items remain'.format(len(diff)))
+
         else:
-            print('{} items remain'.format(len(diff)))
+            print('No images to download')
         with open(f'./current_dl/{self.site}.remain_dl.txt', 'w') as m:
             for _ in diff:
+                # print(_)
+                if settings.Img_data.get(_):
+                    settings.Img_data[_]["download_state"] = False
+                else:
+                    print(f"key {_} not find")
                 m.write('{}\n'.format(_))
-        if len(diff) == 0:
-            print('No images to download')
+        settings.write_data(data_folder, data_file)
         return list3
 
     def update(self, dates):
         dates_list = []
-        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
-        Path(f'./updated_list/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./namelist_date/{self.site}').exists():
+            Path(
+                f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./updated_list/{self.site}').exists():
+            Path(
+                f'./updated_list/{self.site}').mkdir(parents=True, exist_ok=True)
         for i in dates:
             try:
                 with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, i)) as p:
@@ -122,23 +141,29 @@ class Archive():
         return dates_list
 
     def flush_update(self, dates):
-        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./namelist_date/{self.site}').exists():
+            Path(
+                f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         for _ in dates:
             Path('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, _)).\
-                replace('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, self.year, _))
+                replace(
+                    './namelist_date/{}/nl_{}-{}.txt'.format(self.site, self.year, _))
         shutil.rmtree('./current_dl', ignore_errors=True)
         return
 
     # copy date id files to namelist folder
     def flush_all(self):
-        Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+        if not Path(f'./namelist_date/{self.site}').exists():
+            Path(
+                f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         list1 = os.listdir('./current_dl')
         list2 = []
         for i in list1:
             if i.startswith('{}.{}'.format(self.site, self.year)) and ("_" not in i):
                 list2.append(i)
         for j in list2:
-            date = re.sub(r'\.txt$', '', '{}-{}'.format(j.split('-')[-2], j.split('-')[-1]))
+            date = re.sub(
+                r'\.txt$', '', '{}-{}'.format(j.split('-')[-2], j.split('-')[-1]))
             with open('./current_dl/{}'.format(j)) as r:
                 list3 = r.read().splitlines()
             with open('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, self.year, date), 'w') as f:
@@ -165,7 +190,8 @@ class Archive():
             if not os.path.exists(os.path.join(self.dl_path, folder)):
                 os.makedirs(os.path.join(self.dl_path, folder))
             for _ in list2:
-                shutil.move(os.path.join(self.dl_path, _), os.path.join(self.dl_path, folder))
+                shutil.move(os.path.join(self.dl_path, _),
+                            os.path.join(self.dl_path, folder))
         else:
             pass
 
@@ -180,7 +206,8 @@ class Archive():
             for m in dates:
                 with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, m)) as r:
                     pair = r.read().splitlines()
-                folder = self.site + ' ' + str(self.year) + '.' + m.replace('-', '.')
+                folder = self.site + ' ' + \
+                    str(self.year) + '.' + m.replace('-', '.')
                 if not os.path.exists(os.path.join(self.dl_path, folder)):
                     os.makedirs(os.path.join(self.dl_path, folder))
                 if len(list2) == 0:
@@ -195,10 +222,12 @@ class Archive():
                             name_id = item
                         if name_id in pair:
                             # shutil.move(os.path.join(path, item), os.path.join(path, folder, item))
-                            Path(os.path.join(self.dl_path, item)).replace(os.path.join(self.dl_path, folder, item))
+                            Path(os.path.join(self.dl_path, item)).replace(
+                                os.path.join(self.dl_path, folder, item))
         # for yande.re only
         else:
-            folder = '{}.update_{}.{}-{}'.format(self.site, self.year, dates[0].replace('-', ''), dates[-1].replace('-', ''))
+            folder = '{}.update_{}.{}-{}'.format(
+                self.site, self.year, dates[0].replace('-', ''), dates[-1].replace('-', ''))
             if not os.path.exists(os.path.join(self.dl_path, folder)):
                 os.makedirs(os.path.join(self.dl_path, folder))
             with open('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1])) as r:
@@ -206,7 +235,8 @@ class Archive():
             for item in list2:
                 name_id = item.split(' ')[1]
                 if name_id in pair:
-                    shutil.move(os.path.join(self.dl_path, item), os.path.join(self.dl_path, folder))
+                    shutil.move(os.path.join(self.dl_path, item),
+                                os.path.join(self.dl_path, folder))
         return
 
 

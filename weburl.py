@@ -1,35 +1,36 @@
-from settings import config
+import settings
 
 
-class Site():
+class Site:
 
     def __init__(self, site='yande.re'):
         self.site = site
-        self.date_link = config["yande"]["weburl"][0]
-        self.post_link = config["yande"]["weburl"][1]
-        self.tag = config["yande"]["tag"]
-        self.prefix = config["yande"]["prefix"]
+        self.date_link = settings.config["yande"]["weburl"][0]
+        self.post_link = settings.config["yande"]["weburl"][1]
+        self.tag_link = settings.config["yande"]["weburl"][2]
+        self.site_tag = settings.config["yande"]["tag"]
+        self.prefix = settings.config["yande"]["prefix"]
 
     def set_site(self, site):
         if site in ['yande.re', 'yande', 'y']:
-            self.tag = config["yande"]["tag"]
-            self.site = config["yande"]["site"]
-            self.prefix = config["yande"]["prefix"]
-            self.date_link = config["yande"]["weburl"][0]
-            self.post_link = config["yande"]["weburl"][1]
+            self.site_tag = settings.config["yande"]["tag"]
+            self.site = settings.config["yande"]["site"]
+            self.prefix = settings.config["yande"]["prefix"]
+            self.date_link = settings.config["yande"]["weburl"][0]
+            self.post_link = settings.config["yande"]["weburl"][1]
+            self.tag_link = settings.config["yande"]["weburl"][2]
         elif site in ['konachan', 'konachan.com', 'k']:
-            self.tag = config["konachan"]["tag"]
-            self.site = config["konachan"]["site"]
-            self.prefix = config["konachan"]["prefix"]
-            self.date_link = config["konachan"]["weburl"][0]
-            self.post_link = config["konachan"]["weburl"][1]
+            self.site_tag = settings.config["konachan"]["tag"]
+            self.site = settings.config["konachan"]["site"]
+            self.prefix = settings.config["konachan"]["prefix"]
+            self.date_link = settings.config["konachan"]["weburl"][0]
+            self.post_link = settings.config["konachan"]["weburl"][1]
+            self.tag_link = settings.config["konachan"]["weburl"][2]
         elif site in ['minitokyo', 'm']:
-            self.tag = config["minitokyo"]["tag"]
-            self.site = config["minitokyo"]["site"]
+            self.site_tag = settings.config["minitokyo"]["tag"]
+            self.site = settings.config["minitokyo"]["site"]
             self.date_link = ''
-            self.prefix = config["minitokyo"]["prefix"]
-            self.post_link = config["minitokyo"]["weburl"][0]
+            self.prefix = settings.config["minitokyo"]["prefix"]
+            self.post_link = settings.config["minitokyo"]["weburl"][0]
         else:
             raise Exception("No a Valid Site!")
-
-
