@@ -87,5 +87,5 @@ numbers = [4, 5, 7, 1, 3, 6, 9, 8, 0]
 output = numbers.sort()
 print("The Value in the output variable is:", output)
 
-'https://yande.re/post?page=2&tags=tony_taka+'
-'https://yande.re/post?page=1&tags=date%3A2022-02-25'
+str = 'Post.register_tags({"ass":"general","gothic_lolita":"general","kakao_rantan":"artist","lolita_fashion":"general"});'
+print(str.lstrip('Post.register_tags(').rstrip(');'))

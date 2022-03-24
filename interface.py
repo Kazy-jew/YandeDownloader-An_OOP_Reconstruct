@@ -71,7 +71,9 @@ class Yande_re(Downloader):
 
     # download by tag(s)
     def tag_dl(self):
+        settings.Img_data = {}
         self.dl_tag = input("please input the tag you want to download: ")
+        self.sln_tags(self.dl_tag)
         pass
 
     def downloader_y(self, dates, original_id, id_list, eigenvalue, get_json=True):

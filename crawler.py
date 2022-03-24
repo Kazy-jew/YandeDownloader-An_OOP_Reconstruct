@@ -221,16 +221,39 @@ class Downloader(Archive):
                 f.write('{}\n'.format(item))
         driver.close()
         return
-    
+
     # get id list under tag(s)
     def sln_tags(self, tag, js=None):
-        download_folder = 'current_dl'
-        if not os.path.exists(download_folder):
-            os.makedirs(download_folder)
-        tag_list =[]
+        tag_list = []
+        url = self.tag_link.format(1, tag)
         driver = self.sln_chrome()
-        
-        
+        driver.get(url)
+        try:
+            pages_num_element = driver.find_element(
+                By.XPATH, '//*[@id="paginator"]/div')
+            pages_num = int(pages_num_element.text.split(' ')[-3])
+        except NSEE:
+            pages_num = 1
+        print(f"tag {tag} has {pages_num} page(s)...")
+        page_img = driver.find_elements(
+            By.XPATH, '//*[@id="post-list-posts"]/li')
+        tag_list += [x.get_attribute('id') for x in page_img]
+        if pages_num > 1:
+            for i in range(2, pages_num + 1):
+                url = self.tag_link.format(i, tag)
+                driver.get(url)
+                page_img = driver.find_elements(
+                    By.XPATH, '//*[@id="post-list-posts"]/li')
+                tag_list += [x.get_attribute('id') for x in page_img]
+        tag_list = [x.replace('p', '') for x in tag_list]
+        for _ in tag_list:
+            tag_dict = {_: {"retrieved": False}}
+            settings.Img_data.update(tag_dict)
+        tag_folder = self.site_tag + "Data" + "/" + "By.Tag"
+        tag_file = self.site + " tag_" + tag
+        settings.write_data(tag_folder, tag_file)
+        return tag_list
+
     # normal
     def download(self, id_list):
         download_folder = self.site + ' ' + \
@@ -380,9 +403,9 @@ class Downloader(Archive):
             else:
                 imgInfo = tree.xpath('//*[@id="post-view"]/script/text()')
                 raw_string = imgInfo[0].strip()
-                rm_head = raw_string.replace('Post.register_resp(', '')
-                rm_tail = rm_head[:-2]
-                raw_data = json.loads(rm_tail)
+                json_string = raw_string.lstrip(
+                    'Post.register_resp(').rstrip(');')
+                raw_data = json.loads(json_string)
                 filter_list = ["id", "tags", "created_at", "updated_at", "score", "md5", "width",
                                "height", "file_size", "file_ext", "file_url", "rating", "has_children", "parent_id"]
                 id_data[pid]["posts"] = [
