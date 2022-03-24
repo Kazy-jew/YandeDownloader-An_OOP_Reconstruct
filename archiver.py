@@ -15,7 +15,7 @@ class Archive(Calendar):
         self.dl_path = ''
 
     def set_download_path(self):
-        self.dl_path = settings.config[self.tag]["location"]
+        self.dl_path = settings.config[self.site_tag]["location"]
         if not Path(self.dl_path).exists():
             Path(self.dl_path).mkdir(parents=True, exist_ok=True)
 
@@ -72,8 +72,9 @@ class Archive(Calendar):
         list1 = os.listdir(self.dl_path)
         list2 = []
         list3 = []
-        data_folder = self.tag + "Data"
-        data_file = self.site + str(self.year) + '.' + self.date_list[0] + "_" + self.date_list[-1]
+        data_folder = self.site_tag + "Data"
+        data_file = self.site + str(self.year) + '.' + \
+            self.date_list[0] + "_" + self.date_list[-1]
         settings.read_data(data_folder, data_file)
         # print(dates, f"./current_dl/{self.site}.dl_date.txt")
         # raise Exception('stop here')
@@ -113,9 +114,11 @@ class Archive(Calendar):
     def update(self, dates):
         dates_list = []
         if not Path(f'./namelist_date/{self.site}').exists():
-            Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+            Path(
+                f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         if not Path(f'./updated_list/{self.site}').exists():
-            Path(f'./updated_list/{self.site}').mkdir(parents=True, exist_ok=True)
+            Path(
+                f'./updated_list/{self.site}').mkdir(parents=True, exist_ok=True)
         for i in dates:
             try:
                 with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, i)) as p:
@@ -139,24 +142,28 @@ class Archive(Calendar):
 
     def flush_update(self, dates):
         if not Path(f'./namelist_date/{self.site}').exists():
-            Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+            Path(
+                f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         for _ in dates:
             Path('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, _)).\
-                replace('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, self.year, _))
+                replace(
+                    './namelist_date/{}/nl_{}-{}.txt'.format(self.site, self.year, _))
         shutil.rmtree('./current_dl', ignore_errors=True)
         return
 
     # copy date id files to namelist folder
     def flush_all(self):
         if not Path(f'./namelist_date/{self.site}').exists():
-            Path(f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
+            Path(
+                f'./namelist_date/{self.site}').mkdir(parents=True, exist_ok=True)
         list1 = os.listdir('./current_dl')
         list2 = []
         for i in list1:
             if i.startswith('{}.{}'.format(self.site, self.year)) and ("_" not in i):
                 list2.append(i)
         for j in list2:
-            date = re.sub(r'\.txt$', '', '{}-{}'.format(j.split('-')[-2], j.split('-')[-1]))
+            date = re.sub(
+                r'\.txt$', '', '{}-{}'.format(j.split('-')[-2], j.split('-')[-1]))
             with open('./current_dl/{}'.format(j)) as r:
                 list3 = r.read().splitlines()
             with open('./namelist_date/{}/nl_{}-{}.txt'.format(self.site, self.year, date), 'w') as f:
@@ -183,7 +190,8 @@ class Archive(Calendar):
             if not os.path.exists(os.path.join(self.dl_path, folder)):
                 os.makedirs(os.path.join(self.dl_path, folder))
             for _ in list2:
-                shutil.move(os.path.join(self.dl_path, _), os.path.join(self.dl_path, folder))
+                shutil.move(os.path.join(self.dl_path, _),
+                            os.path.join(self.dl_path, folder))
         else:
             pass
 
@@ -198,7 +206,8 @@ class Archive(Calendar):
             for m in dates:
                 with open('./current_dl/{}.{}-{}.txt'.format(self.site, self.year, m)) as r:
                     pair = r.read().splitlines()
-                folder = self.site + ' ' + str(self.year) + '.' + m.replace('-', '.')
+                folder = self.site + ' ' + \
+                    str(self.year) + '.' + m.replace('-', '.')
                 if not os.path.exists(os.path.join(self.dl_path, folder)):
                     os.makedirs(os.path.join(self.dl_path, folder))
                 if len(list2) == 0:
@@ -213,10 +222,12 @@ class Archive(Calendar):
                             name_id = item
                         if name_id in pair:
                             # shutil.move(os.path.join(path, item), os.path.join(path, folder, item))
-                            Path(os.path.join(self.dl_path, item)).replace(os.path.join(self.dl_path, folder, item))
+                            Path(os.path.join(self.dl_path, item)).replace(
+                                os.path.join(self.dl_path, folder, item))
         # for yande.re only
         else:
-            folder = '{}.update_{}.{}-{}'.format(self.site, self.year, dates[0].replace('-', ''), dates[-1].replace('-', ''))
+            folder = '{}.update_{}.{}-{}'.format(
+                self.site, self.year, dates[0].replace('-', ''), dates[-1].replace('-', ''))
             if not os.path.exists(os.path.join(self.dl_path, folder)):
                 os.makedirs(os.path.join(self.dl_path, folder))
             with open('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1])) as r:
@@ -224,7 +235,8 @@ class Archive(Calendar):
             for item in list2:
                 name_id = item.split(' ')[1]
                 if name_id in pair:
-                    shutil.move(os.path.join(self.dl_path, item), os.path.join(self.dl_path, folder))
+                    shutil.move(os.path.join(self.dl_path, item),
+                                os.path.join(self.dl_path, folder))
         return
 
 

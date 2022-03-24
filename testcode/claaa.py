@@ -86,3 +86,6 @@ print(dict2.get("new"))
 numbers = [4, 5, 7, 1, 3, 6, 9, 8, 0]
 output = numbers.sort()
 print("The Value in the output variable is:", output)
+
+'https://yande.re/post?page=2&tags=tony_taka+'
+'https://yande.re/post?page=1&tags=date%3A2022-02-25'

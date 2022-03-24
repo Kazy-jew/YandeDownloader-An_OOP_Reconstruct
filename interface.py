@@ -5,36 +5,37 @@ import os
 
 
 class Yande_re(Downloader):
-    
+
     def __init__(self):
         super(Yande_re, self).__init__()
         self.set_site('yande')
         self.init_year()
         self.set_download_path()
-        print(settings.config[self.tag])
+        print(settings.config[self.site_tag])
 
     @staticmethod
     def welcome():
-        print('  Welcome to Yande.re Downloader !  ')
-        print('------------------------------------------')
-        print('|****************************************|')
-        print('|*** 1.download  2.download remaining ***|')
-        print('|*** 3.update    4.update remaining *****|')
-        print('|*** 5.set year  6.exit               ***|')
-        print('|****************************************|')
-        print('------------------------------------------')
+        print('         Welcome to Yande.re Downloader !     ')
+        print('------------------------------------------------------')
+        print('|****************************************************|')
+        print('|*** 1.download(date)  2.download remaining(date) ***|')
+        print('|*** 3.update(date)    4.update remaining(date)   ***|')
+        print('|*** 5.download(tag)   6.download remaining(tag)  ***|')
+        print('|*** 7.update(tag)     8.update remaining(tag)    ***|')
+        print('|*** 9.set year        10.exit                    ***|')
+        print('|****************************************************|')
+        print('-----------------------------------------------------|')
 
     # download
     def bulk_dl(self):
         dates = self.input_dates()
         self.sln_multi_dates(dates)
-        # return
         original_id = self.get_id(dates)
         id_list = original_id
         settings.Img_data = {}
-        sgl = 's'  # input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
-        # reselected date range, '
-        # 'enter q to quit and select "download remaining")')
+        sgl = 's'  ''' input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
+         reselected date range, 
+         enter q to quit and select "download remaining")')'''
         if sgl == 's':
             self.downloader_y(dates, original_id, id_list, eigenvalue=1)
         elif sgl == 'q':
@@ -47,7 +48,8 @@ class Yande_re(Downloader):
     def chk_dl(self, eigenvalue=1):
         with open('./current_dl/{}.dl_date.txt'.format(self.site), 'r') as r:
             dates = r.read().splitlines()
-        dates = [x.replace(f'{self.year}-', '') for x in dates if str(self.year) in x]
+        dates = [x.replace(f'{self.year}-', '')
+                 for x in dates if str(self.year) in x]
         self.date_list = dates
         original_id = self.check_dl(dates)
         remain_id = self.remain_id()
@@ -67,7 +69,12 @@ class Yande_re(Downloader):
         eigenvalue = 2
         self.chk_dl(eigenvalue)
 
-    def downloader_y(self, dates, original_id, id_list, eigenvalue):
+    # download by tag(s)
+    def tag_dl(self):
+        self.dl_tag = input("please input the tag you want to download: ")
+        pass
+
+    def downloader_y(self, dates, original_id, id_list, eigenvalue, get_json=True):
         # original_id: 初始id列表
         # id_list: 当前列表(需要下载的列表)
         # eigenvalue的值(1 or 2)用来区别1:初次下载时/ 2: update时, 下载完成后文件夹的创建和文件的移动
@@ -77,7 +84,7 @@ class Yande_re(Downloader):
         count_num = 0
         fin = True
         while id_list:
-            self.sln_download(id_list, count_num, True)
+            self.sln_download(id_list, count_num, get_Info=get_json, js=True)
             self.check_dl(dates)
             id_list = self.remain_id()
             count_num += 1
@@ -85,7 +92,7 @@ class Yande_re(Downloader):
             # 退出，同时检查源网页图片是否已被删除
             if count_num == 4:
                 # id_list为未下载的图片id, fin = True时，代表源网页的图片已删除， 否则fin = 未下载的图片列表
-                fin = self.remove_deleted(id_list)
+                fin = self.sln_remove_deleted(id_list)
                 break
         # 源网页的图片已删除时，更新本地图片列表文件(单个日期的图片列表文件不做改动)
         if fin is True:
@@ -101,7 +108,8 @@ class Yande_re(Downloader):
         # 下载失败时，检查 & 下载或直接归档
         else:
             print('Please check the info above')
-            tsuzuku = input("Do you want to proceed archiving with broken downloads? s to proceed any else to quit: ")
+            tsuzuku = input(
+                "Do you want to proceed archiving with broken downloads? s to proceed any else to quit: ")
             if tsuzuku == 's':
                 if eigenvalue == 1:
                     self.move(dates)
@@ -124,8 +132,16 @@ class Yande_re(Downloader):
             elif choice == '4':
                 self.update_chk_dl()
             elif choice == '5':
-                self.year = self.set_year()
+                pass
             elif choice == '6':
+                pass
+            elif choice == '7':
+                pass
+            elif choice == '8':
+                pass
+            elif choice == '9':
+                self.year = self.set_year()
+            elif choice == '10':
                 raise SystemExit(1)
             else:
                 print('Invalid Input !')
@@ -138,7 +154,7 @@ class Konachan(Downloader):
         self.set_site('konachan')
         self.init_year()
         self.set_download_path()
-        print(settings.config[self.tag])
+        print(settings.config[self.site_tag])
 
     @staticmethod
     def welcome():
@@ -165,15 +181,16 @@ class Konachan(Downloader):
             dates = r.read().splitlines()
         dates = [x.replace(f'{self.year}-', '') for x in dates]
         print(dates)
-        print('check {}'.format([self.site + '.' + str(self.year) + '-' + x + '.txt' for x in dates]))
+        print('check {}'.format(
+            [self.site + '.' + str(self.year) + '-' + x + '.txt' for x in dates]))
         self.check_dl(dates)
         id_list = self.remain_id()
         self.downloader_k(dates, id_list)
 
-    def downloader_k(self, dates, id_list):
+    def downloader_k(self, dates, id_list, get_json=True):
         retry = 0
         while id_list:
-            self.sln_download(id_list, retry, True)
+            self.sln_download(id_list, retry, get_info=get_json, js=True)
             self.check_dl(dates)
             retry += 1
             id_list = self.remain_id()

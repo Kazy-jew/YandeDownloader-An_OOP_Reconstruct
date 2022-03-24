@@ -83,10 +83,10 @@ class Downloader(Archive):
                     page_ = requests.get(
                         url, headers=headers, proxies=proxy_url)
                     tree = html.fromstring(page_.content)
-                    if self.tag == 'yande':
+                    if self.site_tag == 'yande':
                         mark_tag = tree.xpath(
                             '//*[@id="post-list"]/div[2]/div[4]/p/text()')
-                    elif self.tag == 'konachan':
+                    elif self.site_tag == 'konachan':
                         mark_tag = tree.xpath(
                             '//*[@id="post-list"]/div[3]/div[4]/p/text()')
                     if not mark_tag:
@@ -106,14 +106,14 @@ class Downloader(Archive):
                 f.write('{}\n'.format(item))
         return
 
-    # 确定图片未下载成功的原因：若源已经不存在则输出删除的信息，否则为本地原因
+    # 确定图片未下载成功的原因：若源已经不存在则输出删除的信息，否则为本地原因 (deprecated)
     def remove_deleted(self, id_list):
         id_to_remove = []
         headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/73.0.3683.103 Safari/537.36'}
         proxy_url = {'http': 'http://127.0.0.1:7890'}
-        for _ in id_list:
+        for _ in tqdm(id_list):
             url = self.post_link.format(_)
             page = requests.get(url, headers=headers, proxies=proxy_url)
             tree = html.fromstring(page.content)
@@ -134,6 +134,36 @@ class Downloader(Archive):
             return True
         else:
             # 存在未下载成功的图片，返回该图片id列表
+            return list(set(id_list) - set(id_to_remove))
+
+    # selenium realization of remove_deleted, for ip restriction
+    def sln_remove_deleted(self, id_list):
+        id_to_remove = []
+        driver = self.sln_chrome()
+        print("checking the remaining posts...")
+        for _ in tqdm(id_list):
+            url = self.post_link.format(_)
+            driver.get(url)
+            WebDriverWait(driver, 3)
+            source = driver.page_source
+            tree = html.fromstring(source)
+            deleted_info = tree.xpath('//*[@id="post-view"]/div[1]/text()')
+            image_info = tree.xpath('//*[@id="image"]')
+            if image_info:
+                print(Fore.RED + 'Warning !\n',
+                      Fore.BLUE + 'Image {} still exists \
+                      but failed to be downloaded too many times, '.format(colored(_, 'green')),
+                      Fore.BLUE + 'please check manually')
+                print(Style.RESET_ALL)
+            else:
+                print('{}:'.format(_), deleted_info[0])
+                # the post is deleted，remove from download list
+                id_to_remove.append(_)
+        if len(id_list) == len(id_to_remove):
+            # all the remaining post is deleted
+            return True
+        else:
+            # return the failed to download image list
             return list(set(id_list) - set(id_to_remove))
 
     # selenium realization of multi_dates, for ip restriction of anti-crawler
@@ -191,15 +221,20 @@ class Downloader(Archive):
                 f.write('{}\n'.format(item))
         driver.close()
         return
-
-    # selenium realization of remove_deleted, for ip restriction
-    def sln_remove_deleted(self, id_list):
-        return
-
+    
+    # get id list under tag(s)
+    def sln_tags(self, tag, js=None):
+        download_folder = 'current_dl'
+        if not os.path.exists(download_folder):
+            os.makedirs(download_folder)
+        tag_list =[]
+        driver = self.sln_chrome()
+        
+        
     # normal
     def download(self, id_list):
         download_folder = self.site + ' ' + \
-                          re.sub('[-]', '.', self.date_link.split('%3A')[-1])  # 创建下载文件夹
+            re.sub('[-]', '.', self.date_link.split('%3A')[-1])  # 创建下载文件夹
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
         print('start downloading...')
@@ -226,7 +261,7 @@ class Downloader(Archive):
         return
 
     # selenium
-    def sln_download(self, id_list, retry, js=None):
+    def sln_download(self, id_list, retry, get_info=True, js=None):
         driver = self.sln_chrome()
         print('start downloading...')
         for _ in tqdm(id_list):
@@ -234,7 +269,8 @@ class Downloader(Archive):
             driver.get(url)
             wait = WebDriverWait(driver, 3)
             source = driver.page_source
-            self.sln_getInfo(source, _)
+            if get_info:
+                self.sln_getInfo(source, _)
             if not js:
                 try:
                     img = wait.until(EC.element_to_be_clickable(
@@ -318,7 +354,7 @@ class Downloader(Archive):
         driver.quit()
 
     def sln_getInfo(self, source, pid):
-        if not settings.Img_data.get(pid):
+        if not settings.Img_data.get("retrieved"):
             id_data = {
                 pid: {
                     "posts": [],
@@ -326,7 +362,8 @@ class Downloader(Archive):
                     "pool_posts": [],
                     "tags": None,
                     "date": list,
-                    "download_state": bool
+                    "download_state": bool,
+                    "retrieved": True
                 }
             }
             tree = html.fromstring(source)
@@ -368,7 +405,8 @@ class Downloader(Archive):
                 else:
                     id_data[pid]["pool_posts"] = []
                 if raw_data["posts"][0]["has_children"]:
-                    children_Info = tree.xpath('//*[@id="post-view"]/div[3]/a/text()')
+                    children_Info = tree.xpath(
+                        '//*[@id="post-view"]/div[3]/a/text()')
                     children_post_id = [int(x) for x in children_Info[1:]]
                     id_data[pid]["posts"][0]["children"] = children_post_id
             settings.Img_data.update(id_data)
@@ -377,8 +415,9 @@ class Downloader(Archive):
                 print(f"post {pid} deleted, skip")
             else:
                 settings.Img_data[pid]["download_state"] = True
-        data_folder = self.tag + "Data"
-        data_file = self.site + str(self.year) + "." + self.date_list[0] + "_" + self.date_list[-1]
+        data_folder = self.site_tag + "Data"
+        data_file = self.site + str(self.year) + "." + \
+            self.date_list[0] + "_" + self.date_list[-1]
         settings.write_data(data_folder, data_file)
 
 
