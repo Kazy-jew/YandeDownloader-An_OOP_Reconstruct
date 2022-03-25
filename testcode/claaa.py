@@ -1,5 +1,6 @@
 import json
 from pprint import pprint
+from xmlrpc.client import boolean
 
 
 class C:
@@ -90,4 +91,4 @@ print("The Value in the output variable is:", output)
 str = 'Post.register_tags({"ass":"general","gothic_lolita":"general","kakao_rantan":"artist","lolita_fashion":"general"});'
 print(str.lstrip('Post.register_tags(').rstrip(');'))
 
-print(len({1: 1}))
+print(bool({1: 1}))

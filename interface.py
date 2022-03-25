@@ -21,8 +21,8 @@ class Yande_re(Downloader):
         print('|****************************************************|')
         print('|*** 1.download(date)  2.download remaining(date) ***|')
         print('|*** 3.update(date)    4.update remaining(date)   ***|')
-        print('|*** 5.download(tag)   6.download remaining(tag)  ***|')
-        print('|*** 7.update(tag)     8.update remaining(tag)    ***|')
+        print('|*** 5.download(tag)   6.check remaining(tag)     ***|')
+        print('|*** 7.update(tag)     8.?????????????????????    ***|')
         print('|*** 9.set year        10.exit                    ***|')
         print('|****************************************************|')
         print('-----------------------------------------------------|')
@@ -77,31 +77,40 @@ class Yande_re(Downloader):
         self.dl_tag = input("please input the tag you want to download: ")
         tag_folder = self.site_tag + "Data" + "/" + "By.Tag"
         tag_file = self.site + " tag#" + self.dl_tag
+        self.data_folder = tag_folder
+        self.data_file= tag_file
         if settings.read_data(tag_folder, tag_file):
             tag_list = [*settings.Img_data]
-            # print(tag_list)
+            # print(len(tag_list))
         else:
             settings.Img_data = {}
             tag_list = self.sln_tags(self.dl_tag)
         self.downloader_tag(tag_list)
 
+    def check_tag(self):
+        self.dl_tag = input("please input the tag you want to check: ")
+        self.check_tag_dl(self.dl_tag)
+
     def downloader_tag(self, tag_list):
         retry_num = 0
-        fin = True
+        going = True
         dl_tag_list = [ x for x in tag_list if not settings.Img_data[x].get('download_state') ]
+        print(f"{len(dl_tag_list)} in array..." )
         while dl_tag_list:
             self.sln_download(dl_tag_list, retry_num, get_info=True, js=True)
-            dl_tag_list = self.check_tag_dl()
+            dl_tag_list = self.check_tag_dl(self.dl_tag)
+            going = bool(dl_tag_list)
             retry_num += 1
             print('Retry times left: ', 4 - retry_num)
             if retry_num == 4:
-                fin = self.check_tag_dl()
+                going = self.check_tag_dl(self.dl_tag)
                 break
-        if fin is True:
+        if not going:
             print('All images downloaded successfully')
         else:
             print('check undownload info')
-            [ print(x) for x in settings.Img_data if not x["download_state"] ]
+            for x in going:
+                print(f'{settings.Img_data[x]["id"]}: {settings.Img_data[x]["file_url"]}\n')
 
     def downloader_y(self, dates, original_id, id_list, eigenvalue, get_json=True):
         # original_id: 初始id列表
@@ -163,7 +172,7 @@ class Yande_re(Downloader):
             elif choice == '5':
                 self.tag_dl()
             elif choice == '6':
-                pass
+                self.check_tag()
             elif choice == '7':
                 pass
             elif choice == '8':
@@ -257,8 +266,8 @@ class Minitokyo(Downloader):
 
 
 if __name__ == "__main__":
-    pass
-    # Yande_re().tag_dl()
+    # pass
+    Yande_re().check_tag()
     # requests.get('https://konachan.com/post?page=1&tags=date%3A2021-12-01')
     # Konachan().run()
     # print(Yande_re().year)

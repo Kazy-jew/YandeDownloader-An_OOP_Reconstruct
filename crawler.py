@@ -256,6 +256,7 @@ class Downloader(Archive):
         tag_folder = self.site_tag + "Data" + "/" + "By.Tag"
         tag_file = self.site + " tag#" + tag
         settings.write_data(tag_folder, tag_file)
+        driver.close()
         return tag_list
 
     # normal
@@ -291,38 +292,122 @@ class Downloader(Archive):
     def sln_download(self, id_list, retry, get_info=True, js=None):
         driver = self.sln_chrome()
         print('start downloading...')
-        for _ in tqdm(id_list):
-            url = self.post_link.format(_)
-            driver.get(url)
-            wait = WebDriverWait(driver, 3)
-            source = driver.page_source
-            if get_info:
-                self.sln_getInfo(source, _)
-            if not js:
-                try:
-                    img = wait.until(EC.element_to_be_clickable(
-                        (By.XPATH, '//*[@id="png"]')))
-                except TE:
+        try:
+            for _ in tqdm(id_list):
+                url = self.post_link.format(_)
+                driver.get(url)
+                wait = WebDriverWait(driver, 3)
+                source = driver.page_source
+                if get_info:
+                    self.sln_getInfo(source, _)
+                if not js:
                     try:
                         img = wait.until(EC.element_to_be_clickable(
-                            (By.XPATH, '//*[@id="highres"]')))
-                    except NSEE:
-                        continue
-                actions = ActionChains(driver)
-                actions.click(img)
-                actions.perform()
-                # time.sleep(1)
-                pyautogui.hotkey('ctrl', 's')
-                time.sleep(1)
-                pyautogui.typewrite(['enter'])
-            time.sleep(2 + retry * 5)
-            # if _ == id_list[-1]:
-            #     time.sleep(20)
-            if len(id_list) == 1:
-                time.sleep(100)
-        print('transverse list complete')
-        driver.close()
-        return
+                            (By.XPATH, '//*[@id="png"]')))
+                    except TE:
+                        try:
+                            img = wait.until(EC.element_to_be_clickable(
+                                (By.XPATH, '//*[@id="highres"]')))
+                        except NSEE:
+                            continue
+                    actions = ActionChains(driver)
+                    actions.click(img)
+                    actions.perform()
+                    # time.sleep(1)
+                    pyautogui.hotkey('ctrl', 's')
+                    time.sleep(1)
+                    pyautogui.typewrite(['enter'])
+                time.sleep(2 + retry * 5)
+                if len(id_list) == 1:
+                    time.sleep(100)
+            print('transverse list complete')
+            settings.write_data(self.data_folder, self.data_file)
+            driver.close()
+        except:
+            settings.write_data(self.data_folder, self.data_file)
+            print(f"Interrupted at {_}")
+            raise Exception
+
+    # retrieved: whether been to the image page, init is False, set to True when has been to the image page.
+    # download_state: first set to True when fetching image page, set to False if not found in disk after check
+    """ two conditions: 1. old json has info but no retrieved property -> go else branch (id, info)
+                        2. new json has retrieved property but no info -> go if branch   (id, retrieve)
+    """
+    def sln_getInfo(self, source, pid):
+        illustrate = ""
+        if not settings.Img_data.get("retrieved") and len(settings.Img_data[pid]) == 2:
+            id_data = {
+                pid: {
+                    "posts": [],
+                    "pools": [],
+                    "pool_posts": [],
+                    "tags": None,
+                    "date": list,
+                    "download_state": bool,
+                    "retrieved": True
+                }
+            }
+            tree = html.fromstring(source)
+            description = tree.xpath('//*[@id="post-view"]/div[1]/text()')[0].strip()
+            illustrate = description
+            if "delete" in description:
+                id_data = {
+                    pid: {
+                        "deleted": True,
+                        "description": re.sub(r'\n', '', description),
+                        "download_state": False
+                    }
+                }
+            else:
+                imgInfo = tree.xpath('//*[@id="post-view"]/script/text()')
+                raw_string = imgInfo[0].strip()
+                json_string = raw_string.lstrip(
+                    'Post.register_resp(').rstrip(');')
+                raw_data = json.loads(json_string)
+                filter_list = ["id", "tags", "created_at", "updated_at", "score", "md5", "width",
+                               "height", "file_size", "file_ext", "file_url", "rating", "has_children", "parent_id"]
+                id_data[pid]["posts"] = [
+                    {i: x[i] for i in x if i in filter_list} for x in raw_data["posts"]]
+                c_timestamp = raw_data["posts"][0]["created_at"]
+                date_data = [datetime.fromtimestamp(c_timestamp).year, datetime.fromtimestamp(
+                    c_timestamp).month, datetime.fromtimestamp(c_timestamp).day]
+                id_data[pid]["date"] = date_data
+                id_data[pid]["download_state"] = True
+                id_data[pid]["tags"] = raw_data["tags"]
+                if raw_data["pools"]:
+                    id_data[pid]["pools"] = [{i: x[i] for i in x if i not in [
+                        "user_id", "is_public"]} for x in raw_data["pools"]]
+                else:
+                    id_data[pid]["pools"] = []
+                if raw_data["pool_posts"]:
+                    for _ in range(len(raw_data["pool_posts"])):
+                        id_data[pid]["pool_posts"].append(
+                            {i: raw_data["pool_posts"][_][i] for i in raw_data["pool_posts"][_] if i != 'active'})
+                else:
+                    id_data[pid]["pool_posts"] = []
+                if raw_data["posts"][0]["has_children"]:
+                    children_Info = tree.xpath(
+                        '//*[@id="post-view"]/div[3]/a/text()')
+                    children_post_id = [int(x) for x in children_Info[1:]]
+                    id_data[pid]["posts"][0]["children"] = children_post_id
+            settings.Img_data.update(id_data)
+        else:
+            if settings.Img_data[pid].get("deleted"):
+                print(f"post {pid} deleted, skip")
+            else:
+                settings.Img_data[pid]["download_state"] = True
+                if not settings.Img_data[pid].get("retrieved"):
+                    settings.Img_data[pid]["retrieved"] = True
+            # downloaded, yet been deleted later, add deleted property
+            if "delete" in illustrate:
+                settings.Img_data[pid]["deleted"] = True
+        if self.date_list:
+            self.data_folder = self.site_tag + "Data"
+            self.data_file = self.site + str(self.year) + "." + self.date_list[0] + "_" + self.date_list[-1]
+        if self.dl_tag:
+            self.data_folder = self.site_tag + "Data" + "/" + "By.Tag"
+            self.data_file = self.site + " tag#" + self.dl_tag
+        # settings.write_data(data_folder, data_file)
 
     def sln_minitokyo(self, id_list):
         signal = 'confirm'
@@ -379,80 +464,6 @@ class Downloader(Archive):
                 print('download successful')
                 # time.sleep(3)
         driver.quit()
-
-    # retrieved: whether been to the image page, init is False, set to True when has been to the image page.
-    # download_state: first set to True when fetching image page, set to False if not found in disk after check
-    """ two conditions: 1. old json has info but no retrieved property -> go else branch (id, info)
-                        2. new json has retrieved property but no info -> go if branch   (id, retrieve)
-    """
-    def sln_getInfo(self, source, pid):
-        if not settings.Img_data.get("retrieved") and len(settings.Img_data[pid]) == 1:
-            id_data = {
-                pid: {
-                    "posts": [],
-                    "pools": [],
-                    "pool_posts": [],
-                    "tags": None,
-                    "date": list,
-                    "download_state": bool,
-                    "retrieved": True
-                }
-            }
-            tree = html.fromstring(source)
-            description = tree.xpath(
-                '//*[@id="post-view"]/div[1]/text()')[0].strip()
-            if "delete" in description:
-                id_data = {
-                    pid: {
-                        "deleted": True,
-                        "description": re.sub(r'\n', '', description),
-                        "download_state": False
-                    }
-                }
-            else:
-                imgInfo = tree.xpath('//*[@id="post-view"]/script/text()')
-                raw_string = imgInfo[0].strip()
-                json_string = raw_string.lstrip(
-                    'Post.register_resp(').rstrip(');')
-                raw_data = json.loads(json_string)
-                filter_list = ["id", "tags", "created_at", "updated_at", "score", "md5", "width",
-                               "height", "file_size", "file_ext", "file_url", "rating", "has_children", "parent_id"]
-                id_data[pid]["posts"] = [
-                    {i: x[i] for i in x if i in filter_list} for x in raw_data["posts"]]
-                c_timestamp = raw_data["posts"][0]["created_at"]
-                date_data = [datetime.fromtimestamp(c_timestamp).year, datetime.fromtimestamp(
-                    c_timestamp).month, datetime.fromtimestamp(c_timestamp).day]
-                id_data[pid]["date"] = date_data
-                id_data[pid]["download_state"] = True
-                id_data[pid]["tags"] = raw_data["tags"]
-                if raw_data["pools"]:
-                    id_data[pid]["pools"] = [{i: x[i] for i in x if i not in [
-                        "user_id", "is_public"]} for x in raw_data["pools"]]
-                else:
-                    id_data[pid]["pools"] = []
-                if raw_data["pool_posts"]:
-                    for _ in range(len(raw_data["pool_posts"])):
-                        id_data[pid]["pool_posts"].append(
-                            {i: raw_data["pool_posts"][_][i] for i in raw_data["pool_posts"][_] if i != 'active'})
-                else:
-                    id_data[pid]["pool_posts"] = []
-                if raw_data["posts"][0]["has_children"]:
-                    children_Info = tree.xpath(
-                        '//*[@id="post-view"]/div[3]/a/text()')
-                    children_post_id = [int(x) for x in children_Info[1:]]
-                    id_data[pid]["posts"][0]["children"] = children_post_id
-            settings.Img_data.update(id_data)
-        else:
-            if settings.Img_data[pid].get("deleted"):
-                print(f"post {pid} deleted, skip")
-            else:
-                settings.Img_data[pid]["download_state"] = True
-                if not settings.Img_data[pid].get("retrieved"):
-                    settings.Img_data[pid]["retrieved"] = True
-        data_folder = self.site_tag + "Data"
-        data_file = self.site + str(self.year) + "." + \
-            self.date_list[0] + "_" + self.date_list[-1]
-        settings.write_data(data_folder, data_file)
 
 
 if __name__ == "__main__":
