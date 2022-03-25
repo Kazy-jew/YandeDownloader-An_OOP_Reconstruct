@@ -75,8 +75,9 @@ class Archive(Calendar):
         data_folder = self.site_tag + "Data"
         data_file = self.site + str(self.year) + '.' + \
             self.date_list[0] + "_" + self.date_list[-1]
-        settings.read_data(data_folder, data_file)
-        # print(dates, f"./current_dl/{self.site}.dl_date.txt")
+        settings.Img_data = settings.read_data(data_folder, data_file)
+        if not settings.Img_data:
+            raise Exception("No json Data file")
         # raise Exception('stop here')
         if (not os.path.exists(f"./current_dl/{self.site}.dl_date.txt")) or (not os.path.exists('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1]))):
             raise Exception('No date or date-lists file !!')
@@ -97,7 +98,6 @@ class Archive(Calendar):
                 print('remain to be downloaded', diff)
             else:
                 print('{} items remain'.format(len(diff)))
-
         else:
             print('No images to download')
         with open(f'./current_dl/{self.site}.remain_dl.txt', 'w') as m:
@@ -111,6 +111,36 @@ class Archive(Calendar):
         settings.write_data(data_folder, data_file)
         return list3
 
+    def check_tag_dl(self, tag):
+        list_all = os.listdir(self.dl_path)
+        list_dl = []
+        if not settings.Img_data:
+            data_folder = self.site_tag + "Data" + "/" + "By.Tag"
+            data_file = self.site + " tag#" + tag
+            settings.Img_data = settings.read_data(data_folder, data_file)
+        for name in list_all:
+            if name.startswith(self.prefix) and (not name.endswith('crdownload')) and os.path.isfile(self.dl_path + '\\' + name):
+                # can use match case here after python 3.10
+                if self.prefix == 'yande.re':
+                    list_dl.append(name.split(' ')[1])
+                elif self.prefix == 'Konachan.com':
+                    list_dl.append(name.split(' ')[2])
+        list_tag = [*settings.Img_data]
+        failed_dl = list(set(list_tag) - set(list_dl))
+        if len(failed_dl) > 0:
+            if len(failed_dl) <= 10:
+                print('remain to be downloaded', failed_dl)
+            else:
+                print('{} items remain'.format(len(failed_dl)))
+            for _ in failed_dl:
+                settings.Img_data[_]["download_state"] = False
+            settings.write_data(data_folder, data_file)
+            return failed_dl
+        else:
+            print('No images remain to download')
+            return True
+
+            
     def update(self, dates):
         dates_list = []
         if not Path(f'./namelist_date/{self.site}').exists():

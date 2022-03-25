@@ -219,6 +219,10 @@ class Downloader(Archive):
                   'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
+        settings.Img_data = { x: {"retrieved": False, "download_state": False} for x in dates_list }
+        date_folder = self.site_tag + "Data"
+        date_file = self.site + str(self.year)  + '.' + dates[0] + "_" + dates[-1]
+        settings.write_data(date_folder, date_file)
         driver.close()
         return
 
@@ -247,7 +251,7 @@ class Downloader(Archive):
                 tag_list += [x.get_attribute('id') for x in page_img]
         tag_list = [x.replace('p', '') for x in tag_list]
         for _ in tag_list:
-            tag_dict = {_: {"retrieved": False}}
+            tag_dict = {_: {"retrieved": False, "download_state": False}}
             settings.Img_data.update(tag_dict)
         tag_folder = self.site_tag + "Data" + "/" + "By.Tag"
         tag_file = self.site + " tag#" + tag
@@ -316,7 +320,7 @@ class Downloader(Archive):
             #     time.sleep(20)
             if len(id_list) == 1:
                 time.sleep(100)
-        print('download successful')
+        print('transverse list complete')
         driver.close()
         return
 
@@ -376,8 +380,13 @@ class Downloader(Archive):
                 # time.sleep(3)
         driver.quit()
 
+    # retrieved: whether been to the image page, init is False, set to True when has been to the image page.
+    # download_state: first set to True when fetching image page, set to False if not found in disk after check
+    """ two conditions: 1. old json has info but no retrieved property -> go else branch (id, info)
+                        2. new json has retrieved property but no info -> go if branch   (id, retrieve)
+    """
     def sln_getInfo(self, source, pid):
-        if not settings.Img_data.get("retrieved"):
+        if not settings.Img_data.get("retrieved") and len(settings.Img_data[pid]) == 1:
             id_data = {
                 pid: {
                     "posts": [],
@@ -438,6 +447,8 @@ class Downloader(Archive):
                 print(f"post {pid} deleted, skip")
             else:
                 settings.Img_data[pid]["download_state"] = True
+                if not settings.Img_data[pid].get("retrieved"):
+                    settings.Img_data[pid]["retrieved"] = True
         data_folder = self.site_tag + "Data"
         data_file = self.site + str(self.year) + "." + \
             self.date_list[0] + "_" + self.date_list[-1]

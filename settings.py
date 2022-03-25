@@ -22,12 +22,12 @@ def write_data(folder, file):
 def read_data(folder, file):
     global Img_data
     if not Path(f'./ImageData/{folder}/{file}.json').exists():
-        raise Exception('No Image Data file!')
+        return {}
     else:
         with open(f'./ImageData/{folder}/{file}.json', "r") as ir:
             Img_data = json.load(ir)
         print("load imageData... done")
-        return
+        return Img_data
 
 
 # with open('./ImageData/yandeData/yande.re202203-02_03-02.json', 'r') as rj:

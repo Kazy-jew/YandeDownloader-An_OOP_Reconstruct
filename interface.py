@@ -1,3 +1,4 @@
+from tabnanny import check
 from crawler import Downloader
 import settings
 import os
@@ -29,6 +30,7 @@ class Yande_re(Downloader):
     # download
     def bulk_dl(self):
         dates = self.input_dates()
+        self.date_list = dates
         self.sln_multi_dates(dates)
         original_id = self.get_id(dates)
         id_list = original_id
@@ -59,6 +61,7 @@ class Yande_re(Downloader):
     def update_chk(self):
         eigenvalue = 2
         dates = self.input_dates()
+        self.date_list = dates
         self.multi_dates(dates)
         original_id = self.update(dates)
         update_id = self.get_id(dates)
@@ -71,14 +74,34 @@ class Yande_re(Downloader):
 
     # download by tag(s)
     def tag_dl(self):
-        settings.Img_data = {}
         self.dl_tag = input("please input the tag you want to download: ")
-        tag_list = self.sln_tags(self.dl_tag)
+        tag_folder = self.site_tag + "Data" + "/" + "By.Tag"
+        tag_file = self.site + " tag#" + self.dl_tag
+        if settings.read_data(tag_folder, tag_file):
+            tag_list = [*settings.Img_data]
+            # print(tag_list)
+        else:
+            settings.Img_data = {}
+            tag_list = self.sln_tags(self.dl_tag)
         self.downloader_tag(tag_list)
-        pass
 
     def downloader_tag(self, tag_list):
-        pass
+        retry_num = 0
+        fin = True
+        dl_tag_list = [ x for x in tag_list if not settings.Img_data[x].get('download_state') ]
+        while dl_tag_list:
+            self.sln_download(dl_tag_list, retry_num, get_info=True, js=True)
+            dl_tag_list = self.check_tag_dl()
+            retry_num += 1
+            print('Retry times left: ', 4 - retry_num)
+            if retry_num == 4:
+                fin = self.check_tag_dl()
+                break
+        if fin is True:
+            print('All images downloaded successfully')
+        else:
+            print('check undownload info')
+            [ print(x) for x in settings.Img_data if not x["download_state"] ]
 
     def downloader_y(self, dates, original_id, id_list, eigenvalue, get_json=True):
         # original_id: 初始id列表
@@ -235,6 +258,7 @@ class Minitokyo(Downloader):
 
 if __name__ == "__main__":
     pass
+    # Yande_re().tag_dl()
     # requests.get('https://konachan.com/post?page=1&tags=date%3A2021-12-01')
     # Konachan().run()
     # print(Yande_re().year)
