@@ -73,7 +73,11 @@ class Yande_re(Downloader):
     def tag_dl(self):
         settings.Img_data = {}
         self.dl_tag = input("please input the tag you want to download: ")
-        self.sln_tags(self.dl_tag)
+        tag_list = self.sln_tags(self.dl_tag)
+        self.downloader_tag(tag_list)
+        pass
+
+    def downloader_tag(self, tag_list):
         pass
 
     def downloader_y(self, dates, original_id, id_list, eigenvalue, get_json=True):
@@ -134,7 +138,7 @@ class Yande_re(Downloader):
             elif choice == '4':
                 self.update_chk_dl()
             elif choice == '5':
-                pass
+                self.tag_dl()
             elif choice == '6':
                 pass
             elif choice == '7':

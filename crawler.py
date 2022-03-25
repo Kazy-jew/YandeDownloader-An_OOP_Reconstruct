@@ -239,7 +239,7 @@ class Downloader(Archive):
             By.XPATH, '//*[@id="post-list-posts"]/li')
         tag_list += [x.get_attribute('id') for x in page_img]
         if pages_num > 1:
-            for i in range(2, pages_num + 1):
+            for i in tqdm(range(2, pages_num + 1)):
                 url = self.tag_link.format(i, tag)
                 driver.get(url)
                 page_img = driver.find_elements(
@@ -250,7 +250,7 @@ class Downloader(Archive):
             tag_dict = {_: {"retrieved": False}}
             settings.Img_data.update(tag_dict)
         tag_folder = self.site_tag + "Data" + "/" + "By.Tag"
-        tag_file = self.site + " tag_" + tag
+        tag_file = self.site + " tag#" + tag
         settings.write_data(tag_folder, tag_file)
         return tag_list
 
