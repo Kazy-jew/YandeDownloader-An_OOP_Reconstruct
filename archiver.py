@@ -249,7 +249,7 @@ class Archive(Calendar):
         list1 = os.listdir(self.dl_path)
         list2 = []
         for i in list1:
-            if i.startswith(self.site) and (not i.endswith('crdownload')) and os.path.isfile(self.dl_path + '\\' + i):
+            if i.startswith(self.site) and (not i.endswith('crdownload')) and os.path.isfile(self.dl_path + r'/' + i):
                 list2.append(i)
         if not updates:
             for m in dates:

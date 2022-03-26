@@ -91,4 +91,3 @@ print("The Value in the output variable is:", output)
 str = 'Post.register_tags({"ass":"general","gothic_lolita":"general","kakao_rantan":"artist","lolita_fashion":"general"});'
 print(str.lstrip('Post.register_tags(').rstrip(');'))
 
-print(bool({1: 1}))

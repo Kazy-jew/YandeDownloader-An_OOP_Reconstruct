@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException as TE
 from selenium.common.exceptions import NoSuchElementException as NSEE
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 from lxml import html
 from colorama import Fore, Style
@@ -37,7 +38,7 @@ class Downloader(Archive):
         root = os.path.expanduser('~')
         chrome_data = r'AppData\Local\Google\Chrome\User Data'
         data_dir = os.path.join(root, chrome_data)
-        chrome_options = webdriver.ChromeOptions()
+        chrome_options = Options()
         # change to your own chrome profile path if is not installed with default configuration,
         # you can find it in chrome browser under address chrome://version/
         prefs = {'download.default_directory': self.dl_path}
@@ -221,9 +222,9 @@ class Downloader(Archive):
                   'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
-        settings.Img_data = { x: {"retrieved": False, "download_state": False} for x in dates_list }
+        settings.Img_data = {x: {"retrieved": False, "download_state": False} for x in dates_list}
         date_folder = self.site_tag + "Data"
-        date_file = self.site + str(self.year)  + '.' + dates[0] + "_" + dates[-1]
+        date_file = self.site + str(self.year) + '.' + dates[0] + "_" + dates[-1]
         settings.write_data(date_folder, date_file)
         driver.close()
         return
@@ -294,8 +295,10 @@ class Downloader(Archive):
     def sln_download(self, id_list, retry, json_info=True, js=None):
         driver = self.sln_chrome()
         print('start downloading...')
+        count = 0
         try:
             for _ in tqdm(id_list):
+                count += 1
                 url = self.post_link.format(_)
                 driver.get(url)
                 wait = WebDriverWait(driver, 3)
@@ -319,6 +322,9 @@ class Downloader(Archive):
                     pyautogui.hotkey('ctrl', 's')
                     time.sleep(1)
                     pyautogui.typewrite(['enter'])
+                if count == 100:
+                    settings.write_data(self.data_folder, self.data_file)
+                    count = 0
                 time.sleep(2 + retry * 5)
                 if len(id_list) == 1:
                     time.sleep(100)
