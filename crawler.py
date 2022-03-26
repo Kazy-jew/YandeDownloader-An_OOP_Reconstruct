@@ -12,6 +12,8 @@ from selenium.common.exceptions import TimeoutException as TE
 from selenium.common.exceptions import NoSuchElementException as NSEE
 from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 from lxml import html
 from colorama import Fore, Style
@@ -36,9 +38,9 @@ class Downloader(Archive):
 
     def sln_chrome(self):
         root = os.path.expanduser('~')
-        chrome_data = r'.config/google-chrome/Default'
+        chrome_data = r'.config/google-chrome'
         data_dir = os.path.join(root, chrome_data)
-        chrome_options = webdriver.ChromeOptions()
+        chrome_options = Options()
         # change to your own chrome profile path if is not installed with default configuration,
         # you can find it in chrome browser under address chrome://version/
         prefs = {'download.default_directory': self.dl_path}
@@ -46,7 +48,7 @@ class Downloader(Archive):
         # keep browser open
         chrome_options.add_experimental_option('prefs', prefs)
         chrome_options.add_experimental_option("detach", True)
-        driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         return driver
 
     # 生成原始id列表(多文件)和合并原始列表后的初始列表(单文件)，返回输入的日期
@@ -463,7 +465,8 @@ class Downloader(Archive):
 
 
 if __name__ == "__main__":
-    pass
+    # pass
+    Downloader().sln_chrome()
     # testurl = ['https://yande.re/post/show/208854', 'https://yande.re/post/show/650982',
     #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
     # testdriver = Downloader().sln_chrome()
