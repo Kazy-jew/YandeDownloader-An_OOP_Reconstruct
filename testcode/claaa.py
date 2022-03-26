@@ -1,6 +1,6 @@
 import json
 from pprint import pprint
-from xmlrpc.client import boolean
+import os
 
 
 class C:
@@ -92,3 +92,4 @@ str = 'Post.register_tags({"ass":"general","gothic_lolita":"general","kakao_rant
 print(str.lstrip('Post.register_tags(').rstrip(');'))
 
 print(bool({1: 1}))
+print(os.path.expanduser('~'))

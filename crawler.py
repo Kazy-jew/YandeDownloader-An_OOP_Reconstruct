@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException as TE
 from selenium.common.exceptions import NoSuchElementException as NSEE
 from selenium.webdriver.common.action_chains import ActionChains
+from webdriver_manager.chrome import ChromeDriverManager
 from datetime import datetime
 from lxml import html
 from colorama import Fore, Style
@@ -35,7 +36,7 @@ class Downloader(Archive):
 
     def sln_chrome(self):
         root = os.path.expanduser('~')
-        chrome_data = r'AppData\Local\Google\Chrome\User Data'
+        chrome_data = r'.config/google-chrome/Default'
         data_dir = os.path.join(root, chrome_data)
         chrome_options = webdriver.ChromeOptions()
         # change to your own chrome profile path if is not installed with default configuration,
@@ -45,7 +46,7 @@ class Downloader(Archive):
         # keep browser open
         chrome_options.add_experimental_option('prefs', prefs)
         chrome_options.add_experimental_option("detach", True)
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         return driver
 
     # 生成原始id列表(多文件)和合并原始列表后的初始列表(单文件)，返回输入的日期

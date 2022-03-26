@@ -1,6 +1,6 @@
 {
     "yande": {
-        "location": "D:\\Konachantest",
+        "location": "/home/tokisaki/Pictures/yande.re",
         "year": 2022,
         "prefix": "yande.re",
         "site": "yande.re",
@@ -24,7 +24,7 @@
         ]
     },
     "minitokyo": {
-        "location": "D:\\minitokyo",
+        "location": "/home/tokisaki/Pictures/minitokyo",
         "prefix": "minitokyo.net",
         "site": "minitokyo.net",
         "tag": "minitokyo",
