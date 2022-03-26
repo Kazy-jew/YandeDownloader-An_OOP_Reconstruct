@@ -31,20 +31,23 @@ class Yande_re(Downloader):
     def bulk_dl(self):
         dates = self.input_dates()
         self.date_list = dates
+        json_info = self.init_json_path()
         self.sln_multi_dates(dates)
         original_id = self.get_id(dates)
         id_list = original_id
         settings.Img_data = {}
-        sgl = 's'  ''' input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
-         reselected date range, 
-         enter q to quit and select "download remaining")')'''
+        sgl = 's'
+        # ''' input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
+        #  reselected date range,
+        #  enter q to quit and select "download remaining")')'''
         if sgl == 's':
-            self.downloader_y(dates, original_id, id_list, eigenvalue=1)
+            self.downloader_y(dates, original_id, id_list, eigenvalue=1, get_json=json_info)
         elif sgl == 'q':
             print('download aborted')
             return
         else:
             print('invalid input !')
+            raise SystemExit(2)
 
     # check unfinished
     def chk_dl(self, eigenvalue=1):
@@ -53,19 +56,21 @@ class Yande_re(Downloader):
         dates = [x.replace(f'{self.year}-', '')
                  for x in dates if str(self.year) in x]
         self.date_list = dates
+        json_info = self.init_json_path()
         original_id = self.check_dl(dates)
         remain_id = self.remain_id()
-        self.downloader_y(dates, original_id, remain_id, eigenvalue)
+        self.downloader_y(dates, original_id, remain_id, eigenvalue, get_json=json_info)
 
     # check update
     def update_chk(self):
         eigenvalue = 2
         dates = self.input_dates()
         self.date_list = dates
-        self.multi_dates(dates)
+        json_info = self.init_json_path()
+        self.sln_multi_dates(dates)
         original_id = self.update(dates)
         update_id = self.get_id(dates)
-        self.downloader_y(dates, original_id, update_id, eigenvalue)
+        self.downloader_y(dates, original_id, update_id, eigenvalue, get_json=json_info)
 
     # check unfinished update
     def update_chk_dl(self):
@@ -93,13 +98,13 @@ class Yande_re(Downloader):
 
     def downloader_tag(self, tag_list):
         retry_num = 0
-        going = True
-        dl_tag_list = [ x for x in tag_list if not settings.Img_data[x].get('download_state') ]
-        print(f"{len(dl_tag_list)} in array..." )
+        going = []
+        dl_tag_list = [x for x in tag_list if not settings.Img_data[x].get('download_state')]
+        print(f"{len(dl_tag_list)} in array...")
         while dl_tag_list:
-            self.sln_download(dl_tag_list, retry_num, get_info=True, js=True)
+            self.sln_download(dl_tag_list, retry_num, json_info=True, js=True)
             dl_tag_list = self.check_tag_dl(self.dl_tag)
-            going = bool(dl_tag_list)
+            going = dl_tag_list
             retry_num += 1
             print('Retry times left: ', 4 - retry_num)
             if retry_num == 4:
@@ -122,16 +127,16 @@ class Yande_re(Downloader):
         count_num = 0
         fin = True
         while id_list:
-            self.sln_download(id_list, count_num, get_Info=get_json, js=True)
+            self.sln_download(id_list, count_num, json_info=get_json, js=True)
             self.check_dl(dates)
             id_list = self.remain_id()
-            count_num += 1
-            print('Retry times left:', 4 - count_num)
+            print('Retry times left:', 3 - count_num)
             # 退出，同时检查源网页图片是否已被删除
-            if count_num == 4:
+            if count_num == 3:
                 # id_list为未下载的图片id, fin = True时，代表源网页的图片已删除， 否则fin = 未下载的图片列表
                 fin = self.sln_remove_deleted(id_list)
                 break
+            count_num += 1
         # 源网页的图片已删除时，更新本地图片列表文件(单个日期的图片列表文件不做改动)
         if fin is True:
             print('All images downloaded successfully')
@@ -228,7 +233,7 @@ class Konachan(Downloader):
     def downloader_k(self, dates, id_list, get_json=True):
         retry = 0
         while id_list:
-            self.sln_download(id_list, retry, get_info=get_json, js=True)
+            self.sln_download(id_list, retry, json_info=get_json, js=True)
             self.check_dl(dates)
             retry += 1
             id_list = self.remain_id()

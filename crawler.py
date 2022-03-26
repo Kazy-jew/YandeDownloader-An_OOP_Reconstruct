@@ -31,6 +31,7 @@ class Downloader(Archive):
 
     def __init__(self):
         super(Downloader, self).__init__()
+        self.illustrate = ''
 
     def sln_chrome(self):
         root = os.path.expanduser('~')
@@ -159,6 +160,7 @@ class Downloader(Archive):
                 print('{}:'.format(_), deleted_info[0])
                 # the post is deleted，remove from download list
                 id_to_remove.append(_)
+        driver.close()
         if len(id_list) == len(id_to_remove):
             # all the remaining post is deleted
             return True
@@ -289,7 +291,7 @@ class Downloader(Archive):
         return
 
     # selenium
-    def sln_download(self, id_list, retry, get_info=True, js=None):
+    def sln_download(self, id_list, retry, json_info=True, js=None):
         driver = self.sln_chrome()
         print('start downloading...')
         try:
@@ -298,7 +300,7 @@ class Downloader(Archive):
                 driver.get(url)
                 wait = WebDriverWait(driver, 3)
                 source = driver.page_source
-                if get_info:
+                if json_info:
                     self.sln_getInfo(source, _)
                 if not js:
                     try:
@@ -334,7 +336,6 @@ class Downloader(Archive):
                         2. new json has retrieved property but no info -> go if branch   (id, retrieve)
     """
     def sln_getInfo(self, source, pid):
-        illustrate = ""
         if not settings.Img_data.get("retrieved") and len(settings.Img_data[pid]) == 2:
             id_data = {
                 pid: {
@@ -349,7 +350,7 @@ class Downloader(Archive):
             }
             tree = html.fromstring(source)
             description = tree.xpath('//*[@id="post-view"]/div[1]/text()')[0].strip()
-            illustrate = description
+            self.illustrate = description
             if "delete" in description:
                 id_data = {
                     pid: {
@@ -399,14 +400,8 @@ class Downloader(Archive):
                 if not settings.Img_data[pid].get("retrieved"):
                     settings.Img_data[pid]["retrieved"] = True
             # downloaded, yet been deleted later, add deleted property
-            if "delete" in illustrate:
+            if "delete" in self.illustrate:
                 settings.Img_data[pid]["deleted"] = True
-        if self.date_list:
-            self.data_folder = self.site_tag + "Data"
-            self.data_file = self.site + str(self.year) + "." + self.date_list[0] + "_" + self.date_list[-1]
-        if self.dl_tag:
-            self.data_folder = self.site_tag + "Data" + "/" + "By.Tag"
-            self.data_file = self.site + " tag#" + self.dl_tag
         # settings.write_data(data_folder, data_file)
 
     def sln_minitokyo(self, id_list):

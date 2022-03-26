@@ -12,12 +12,26 @@ from calendargen import Calendar
 class Archive(Calendar):
     def __init__(self):
         super(Archive, self).__init__()
-        self.dl_path = ''
+        self.data_folder = ''
+        self.data_file = ''
+        self.dl_tag = ''
 
     def set_download_path(self):
         self.dl_path = settings.config[self.site_tag]["location"]
         if not Path(self.dl_path).exists():
-            Path(self.dl_path).mkdir(parents=True, exist_ok=True)
+            Path(self.dl_path).mkdir(parents=True)
+
+    def init_json_path(self):
+        if self.date_list:
+            self.data_folder = self.site_tag + "Data"
+            self.data_file = self.site + str(self.year) + "." + self.date_list[0] + "_" + self.date_list[-1]
+            return True
+        elif self.dl_tag:
+            self.data_folder = self.site_tag + "Data" + "/" + "By.Tag"
+            self.data_file = self.site + " tag#" + self.dl_tag
+            return True
+        else:
+            return False
 
     # get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载
     def get_id(self, dates):
@@ -75,6 +89,8 @@ class Archive(Calendar):
         data_folder = self.site_tag + "Data"
         data_file = self.site + str(self.year) + '.' + \
             self.date_list[0] + "_" + self.date_list[-1]
+        self.data_folder = data_folder
+        self.data_file = data_file
         settings.Img_data = settings.read_data(data_folder, data_file)
         if not settings.Img_data:
             raise Exception("No json Data file")
