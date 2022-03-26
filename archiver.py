@@ -98,7 +98,7 @@ class Archive(Calendar):
         if (not os.path.exists(f"./current_dl/{self.site}.dl_date.txt")) or (not os.path.exists('./current_dl/{0}.{1}-{2}_{1}-{3}.txt'.format(self.site, self.year, dates[0], dates[-1]))):
             raise Exception('No date or date-lists file !!')
         for name in list1:
-            if name.startswith(self.prefix) and (not name.endswith('crdownload')) and os.path.isfile(self.dl_path + '\\' + name):
+            if name.startswith(self.prefix) and (not name.endswith('crdownload')) and os.path.isfile(self.dl_path + r'/'+ name):
                 # can use match case here after python 3.10
                 if self.prefix == 'yande.re':
                     list2.append(name.split(' ')[1])

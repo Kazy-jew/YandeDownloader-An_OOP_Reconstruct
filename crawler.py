@@ -200,8 +200,8 @@ class Downloader(Archive):
                 print('Date {}-{} has {} pages'.format(self.year, n, pages_num))
                 date_list += [x.get_attribute('id') for x in page_img]
                 # print(self.site, (script and self.site == 'Konachan'))
-                if js and self.site == 'Konachan':
-                    time.sleep(15)
+                # if js and self.site == 'Konachan':
+                #     time.sleep(15)
                 if pages_num > 1:
                     for i in range(2, pages_num + 1):
                         url = self.date_link.format(i, self.year, n)
@@ -209,8 +209,8 @@ class Downloader(Archive):
                         page_img = driver.find_elements(
                             By.XPATH, '//*[@id="post-list-posts"]/li')
                         date_list += [x.get_attribute('id') for x in page_img]
-                        if js and self.site == 'Konachan':
-                            time.sleep(15)
+                        # if js and self.site == 'Konachan':
+                        #     time.sleep(15)
                 date_list = [w.replace('p', '') for w in date_list]
                 with open(os.path.join(download_folder, '{}.{}.txt'.format(self.site, url.split('%3A')[-1])), 'w') as f:
                     for item in date_list:
@@ -342,7 +342,7 @@ class Downloader(Archive):
                         2. new json has retrieved property but no info -> go if branch   (id, retrieve)
     """
     def sln_getInfo(self, source, pid):
-        if not settings.Img_data.get("retrieved") and len(settings.Img_data[pid]) == 2:
+        if not settings.Img_data[pid].get("retrieved"):
             id_data = {
                 pid: {
                     "posts": [],

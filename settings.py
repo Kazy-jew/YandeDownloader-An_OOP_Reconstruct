@@ -32,7 +32,7 @@ def read_data(folder, file):
 
 def clean_data():
     global Img_data
-    with open(f"./ImageData/yandeData/yande.re2022.03-02_03-02.json", 'r') as raw:
+    with open(f"./ImageData/yandeData/yande.re2022.03-02_03-02.json", 'r', encoding='utf-8') as raw:
         Img_data = json.load(raw)
         for _ in Img_data:
             Img_data[_]["retrieved"] = True
@@ -40,9 +40,24 @@ def clean_data():
         json.dump(Img_data, m, indent=4, ensure_ascii=False)
 
 
+def debug_data():
+    global Img_data
+    with open(f"./ImageData/konachanData/Konachan.com2022.03-19_03-25.json", 'r', encoding='utf-8') as raw:
+        Img_data = json.load(raw)
+    print(len(Img_data))
+    has_info = [x for x in Img_data if len(Img_data[x]) > 2]
+    for x in Img_data:
+        Img_data[x]["download_state"] = True
+    print(len(has_info))
+    with open(f"./ImageData/konachanData/Konachan.com2022.03-19_03-25.json", 'w', encoding='utf-8') as raw:
+        json.dump(Img_data, raw, indent=4, ensure_ascii=False)
+
+
 # with open('./ImageData/yandeData/yande.re202203-02_03-02.json', 'r') as rj:
 #     Img_data = json.load(rj)
 #
 # print(len(Img_data))
+
+
 if __name__ == "__main__":
-    clean_data()
+    debug_data()

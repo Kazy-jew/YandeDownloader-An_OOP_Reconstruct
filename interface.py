@@ -1,4 +1,3 @@
-from tabnanny import check
 from crawler import Downloader
 import settings
 import os
@@ -213,17 +212,18 @@ class Konachan(Downloader):
 
     def bulk_dl(self):
         dates = self.input_dates()
+        self.date_list = dates
         self.sln_multi_dates(dates, True)
-        self.chk_dl()
-        # id_list = archive.get_id(dates)
+        # self.chk_dl()
+        id_list = self.get_id(dates)
         # print(id_list)
-        # self.downloader_k(dates, id_list)
+        self.downloader_k(dates, id_list)
 
     def chk_dl(self):
         with open('./current_dl/{}.dl_date.txt'.format(self.site), 'r') as r:
             dates = r.read().splitlines()
         dates = [x.replace(f'{self.year}-', '') for x in dates]
-        print(dates)
+        self.date_list = dates
         print('check {}'.format(
             [self.site + '.' + str(self.year) + '-' + x + '.txt' for x in dates]))
         self.check_dl(dates)
