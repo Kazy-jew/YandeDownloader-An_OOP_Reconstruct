@@ -129,6 +129,8 @@ class Archive(Calendar):
 
     def check_tag_dl(self, tag):
         list_all = os.listdir(self.dl_path)
+        print(self.dl_path)
+        print(list_all[0:5])
         list_dl = []
         data_folder = self.site_tag + "Data" + "/" + "By.Tag"
         data_file = self.site + " tag#" + tag
@@ -137,13 +139,15 @@ class Archive(Calendar):
         if not settings.Img_data:
             settings.Img_data = settings.read_data(data_folder, data_file)
         for name in list_all:
-            if name.startswith(self.prefix) and (not name.endswith('crdownload')) and os.path.isfile(self.dl_path + '\\' + name):
+            if name.startswith(self.prefix) and (not name.endswith('crdownload')) and os.path.isfile(self.dl_path + r'/' + name):
                 # can use match case here after python 3.10
                 if self.prefix == 'yande.re':
                     list_dl.append(name.split(' ')[1])
                 elif self.prefix == 'Konachan.com':
                     list_dl.append(name.split(' ')[2])
         list_tag = [*settings.Img_data]
+        print(list_tag[0:5])
+        print(list_dl[0:5])
         failed_dl = list(set(list_tag) - set(list_dl))
         # print(len(list_tag), len(list_dl), failed_dl)
         if len(failed_dl) > 0:

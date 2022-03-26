@@ -465,8 +465,8 @@ class Downloader(Archive):
 
 
 if __name__ == "__main__":
-    # pass
-    Downloader().sln_chrome()
+    pass
+    # Downloader().sln_chrome()
     # testurl = ['https://yande.re/post/show/208854', 'https://yande.re/post/show/650982',
     #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
     # testdriver = Downloader().sln_chrome()
