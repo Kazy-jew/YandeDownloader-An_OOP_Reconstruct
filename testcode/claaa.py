@@ -1,5 +1,6 @@
 import json
 from pprint import pprint
+from time import time
 from xmlrpc.client import boolean
 
 
@@ -91,3 +92,11 @@ print("The Value in the output variable is:", output)
 str = 'Post.register_tags({"ass":"general","gothic_lolita":"general","kakao_rantan":"artist","lolita_fashion":"general"});'
 print(str.lstrip('Post.register_tags(').rstrip(');'))
 
+def claaa(n):
+    while True:
+        n -= 1
+        if n == 0:
+            break
+    print("jumped out of loop")
+
+claaa(4)

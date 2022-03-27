@@ -291,20 +291,33 @@ class Downloader(Archive):
         print('Download Successful')
         return
 
+    # check if download finished
+    @staticmethod
+    def check_complete(driver):
+        case1 = driver.find_elements(By.XPATH, '//*[@id="tip2"]')
+        if case1[0].text:
+            return True
+        else:
+            return False
+    
     # selenium
-    def sln_download(self, id_list, retry, json_info=True, js=None):
+    def sln_download(self, id_list, max_wait_time=60, json_info=True, js=None):
         driver = self.sln_chrome()
         print('start downloading...')
         count = 0
         try:
             for _ in tqdm(id_list):
                 count += 1
+                wait_time = max_wait_time
                 url = self.post_link.format(_)
                 driver.get(url)
                 wait = WebDriverWait(driver, 3)
                 source = driver.page_source
                 if json_info:
                     self.sln_getInfo(source, _)
+                    if count == 100:
+                        settings.write_data(self.data_folder, self.data_file)
+                        count = 0
                 if not js:
                     try:
                         img = wait.until(EC.element_to_be_clickable(
@@ -322,17 +335,25 @@ class Downloader(Archive):
                     pyautogui.hotkey('ctrl', 's')
                     time.sleep(1)
                     pyautogui.typewrite(['enter'])
-                if count == 100:
-                    settings.write_data(self.data_folder, self.data_file)
-                    count = 0
-                time.sleep(2 + retry * 5)
-                if len(id_list) == 1:
-                    time.sleep(100)
+                while not Downloader().check_complete(driver):
+                    time.sleep(1)
+                    wait_time -= 1
+                    if wait_time <= 0:
+                        print(f"post {_} max time reached...")
+                        break
+                # give browser time to save to disk
+                if _ == id_list[-1]:
+                    time.sleep(5)
+                # time.sleep(2 + retry * 5)
+                # if len(id_list) == 1:
+                #     time.sleep(100)
             print('transverse list complete')
-            settings.write_data(self.data_folder, self.data_file)
+            if json_info:
+                settings.write_data(self.data_folder, self.data_file)
             driver.close()
         except:
-            settings.write_data(self.data_folder, self.data_file)
+            if json_info:
+                settings.write_data(self.data_folder, self.data_file)
             print(f"Interrupted at {_}")
             raise Exception
 
@@ -468,10 +489,14 @@ class Downloader(Archive):
 
 
 if __name__ == "__main__":
-    pass
     # testurl = ['https://yande.re/post/show/208854', 'https://yande.re/post/show/650982',
     #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
+    # testid = [x.split('/')[-1] for x in testurl]
+    testid2 = [856161, 783832, 721830, 608268, 608269, 605545]
+    Downloader().sln_download(testid2, retry=0, json_info=False, js=True)
     # testdriver = Downloader().sln_chrome()
+    # testdriver.get(testurl[-1])
+    # Downloader().check_finish(testdriver)
     # for _ in tqdm(testurl):
     #     testdriver.get(_)
     #     wait = WebDriverWait(testdriver, 3)
