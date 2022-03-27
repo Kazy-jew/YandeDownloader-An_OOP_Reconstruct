@@ -91,7 +91,8 @@ class Archive(Calendar):
             self.date_list[0] + "_" + self.date_list[-1]
         self.data_folder = data_folder
         self.data_file = data_file
-        settings.Img_data = settings.read_data(data_folder, data_file)
+        print(f"{data_folder}/{data_file}.json")
+        settings.read_data(data_folder, data_file)
         if not settings.Img_data:
             raise Exception("No json Data file")
         # raise Exception('stop here')
@@ -159,7 +160,6 @@ class Archive(Calendar):
             print('No images remain to download')
             return None
 
-            
     def update(self, dates):
         dates_list = []
         if not Path(f'./namelist_date/{self.site}').exists():
@@ -287,6 +287,10 @@ class Archive(Calendar):
                     shutil.move(os.path.join(self.dl_path, item),
                                 os.path.join(self.dl_path, folder))
         return
+
+
+def rmdir_current_dl():
+    shutil.rmtree('./current_dl')
 
 
 if __name__ == "__main__":

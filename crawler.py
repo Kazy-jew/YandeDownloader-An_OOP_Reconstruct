@@ -22,7 +22,7 @@ import pyautogui
 import re
 import requests
 import time
-import urllib
+import urllib.parse
 from archiver import Archive
 import settings
 import json
@@ -349,8 +349,10 @@ class Downloader(Archive):
                 #     time.sleep(100)
             print('transverse list complete')
             if json_info:
+                print("write data to file...")
                 settings.write_data(self.data_folder, self.data_file)
             driver.close()
+            time.sleep(30)
         except:
             if json_info:
                 settings.write_data(self.data_folder, self.data_file)
@@ -363,7 +365,7 @@ class Downloader(Archive):
                         2. new json has retrieved property but no info -> go if branch   (id, retrieve)
     """
     def sln_getInfo(self, source, pid):
-        if not settings.Img_data[pid].get("retrieved"):
+        if not settings.Img_data[pid]["retrieved"]:
             id_data = {
                 pid: {
                     "posts": [],
@@ -431,6 +433,47 @@ class Downloader(Archive):
                 settings.Img_data[pid]["deleted"] = True
         # settings.write_data(data_folder, data_file)
 
+    # download by tag(s)
+    def tag_dl(self):
+        self.dl_tag = input("please input the tag you want to download: ")
+        tag_folder = self.site_tag + "Data" + "/" + "By.Tag"
+        tag_file = self.site + " tag#" + self.dl_tag
+        self.data_folder = tag_folder
+        self.data_file = tag_file
+        if settings.read_data(tag_folder, tag_file):
+            tag_list = [*settings.Img_data]
+            # print(len(tag_list))
+        else:
+            settings.Img_data = {}
+            tag_list = self.sln_tags(self.dl_tag)
+        self.downloader_tag(tag_list)
+
+    def check_tag(self):
+        if not self.dl_tag:
+            self.dl_tag = input("please input the tag you want to check: ")
+        self.check_tag_dl(self.dl_tag)
+
+    def downloader_tag(self, tag_list):
+        retry_num = 0
+        going = []
+        dl_tag_list = [x for x in tag_list if not settings.Img_data[x].get('download_state')]
+        print(f"{len(dl_tag_list)} in array...")
+        while dl_tag_list:
+            self.sln_download(dl_tag_list, max_wait_time=60, json_info=True, js=True)
+            dl_tag_list = self.check_tag_dl(self.dl_tag)
+            going = dl_tag_list
+            retry_num += 1
+            print('Retry times left: ', 4 - retry_num)
+            if retry_num == 4:
+                going = self.check_tag_dl(self.dl_tag)
+                break
+        if not going:
+            print('All images downloaded successfully')
+        else:
+            print('check fail info')
+            for x in going:
+                print(f'{settings.Img_data[x]["id"]}: {settings.Img_data[x]["file_url"]}\n')
+
     def sln_minitokyo(self, id_list):
         signal = 'confirm'
         circle_times = 0
@@ -493,7 +536,7 @@ if __name__ == "__main__":
     #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
     # testid = [x.split('/')[-1] for x in testurl]
     testid2 = [856161, 783832, 721830, 608268, 608269, 605545]
-    Downloader().sln_download(testid2, retry=0, json_info=False, js=True)
+    Downloader().sln_download(testid2, json_info=False, js=True)
     # testdriver = Downloader().sln_chrome()
     # testdriver.get(testurl[-1])
     # Downloader().check_finish(testdriver)
