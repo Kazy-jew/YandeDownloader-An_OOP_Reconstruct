@@ -352,7 +352,6 @@ class Downloader(Archive):
                 print("write data to file...")
                 settings.write_data(self.data_folder, self.data_file)
             driver.close()
-            time.sleep(30)
         except:
             if json_info:
                 settings.write_data(self.data_folder, self.data_file)
