@@ -91,7 +91,7 @@ class Archive(Calendar):
             self.date_list[0] + "_" + self.date_list[-1]
         self.data_folder = data_folder
         self.data_file = data_file
-        print(f"{data_folder}/{data_file}.json")
+        # print(f"{data_folder}/{data_file}.json")
         settings.read_data(data_folder, data_file)
         if not settings.Img_data:
             raise Exception("No json Data file")

@@ -125,7 +125,8 @@ class Yande_re(Downloader):
                 raise SystemExit(3)
             self.check_dl(dates)
             id_list = self.remain_id()
-            print('Retry times left:', 3 - count_num)
+            if id_list:
+                print('Retry times left:', 3 - count_num)
             # 退出，同时检查源网页图片是否已被删除
             if count_num == 3:
                 # id_list为未下载的图片id, fin = True时，代表源网页的图片已删除， 否则fin = 未下载的图片列表

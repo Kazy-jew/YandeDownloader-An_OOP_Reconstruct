@@ -1,6 +1,6 @@
 {
     "yande": {
-        "location": "D:/Konachantest",
+        "location": "D:\\Konachantest",
         "year": 2022,
         "prefix": "yande.re",
         "site": "yande.re",
@@ -12,7 +12,7 @@
         ]
     },
     "konachan": {
-        "location": "",
+        "location": "D:\\Konachantest",
         "year": 2022,
         "prefix": "Konachan.com",
         "site": "Konachan.com",
@@ -24,7 +24,7 @@
         ]
     },
     "minitokyo": {
-        "location": "D:/minitokyo",
+        "location": "D:\\minitokyo",
         "prefix": "minitokyo.net",
         "site": "minitokyo.net",
         "tag": "minitokyo",
