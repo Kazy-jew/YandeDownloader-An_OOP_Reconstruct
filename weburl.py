@@ -11,6 +11,8 @@ class Site:
         self.site_tag = settings.config["yande"]["tag"]
         self.prefix = settings.config["yande"]["prefix"]
         self.dl_path = settings.config["yande"]["location"]
+        self.use_js = settings.config["yande"]["javascript"]
+        self.chrome_profile = settings.config["chrome_profile"]
 
     def set_site(self, site):
         if site in ['yande.re', 'yande', 'y']:
@@ -21,6 +23,7 @@ class Site:
             self.post_link = settings.config["yande"]["weburl"][1]
             self.tag_link = settings.config["yande"]["weburl"][2]
             self.dl_path = settings.config["yande"]["location"]
+            self.use_js = settings.config["yande"]["javascript"]
         elif site in ['konachan', 'konachan.com', 'k']:
             self.site_tag = settings.config["konachan"]["tag"]
             self.site = settings.config["konachan"]["site"]
@@ -29,6 +32,7 @@ class Site:
             self.post_link = settings.config["konachan"]["weburl"][1]
             self.tag_link = settings.config["konachan"]["weburl"][2]
             self.dl_path = settings.config["konachan"]["location"]
+            self.use_js = settings.config["konachan"]["javascript"]
         elif site in ['minitokyo', 'm']:
             self.site_tag = settings.config["minitokyo"]["tag"]
             self.site = settings.config["minitokyo"]["site"]
@@ -36,5 +40,6 @@ class Site:
             self.prefix = settings.config["minitokyo"]["prefix"]
             self.post_link = settings.config["minitokyo"]["weburl"][0]
             self.dl_path = settings.config["minitokyo"]["location"]
+            self.use_js = settings.config["minitokyo"]["javascript"]
         else:
             raise Exception("No a Valid Site!")

@@ -170,7 +170,7 @@ class Downloader(Archive):
             return list(set(id_list) - set(id_to_remove))
 
     # selenium realization of multi_dates, for ip restriction of anti-crawler
-    def sln_multi_dates(self, dates, js=None):
+    def sln_multi_dates(self, dates, ):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
@@ -230,7 +230,7 @@ class Downloader(Archive):
         return
 
     # get id list under tag(s)
-    def sln_tags(self, tag, js=None):
+    def sln_tags(self, tag, js=self.use_js):
         tag_list = []
         url = self.tag_link.format(1, tag)
         driver = self.sln_chrome()
@@ -458,7 +458,7 @@ class Downloader(Archive):
         dl_tag_list = [x for x in tag_list if not settings.Img_data[x].get('download_state')]
         print(f"{len(dl_tag_list)} in array...")
         while dl_tag_list:
-            self.sln_download(dl_tag_list, max_wait_time=60, json_info=True, js=True)
+            self.sln_download(dl_tag_list, max_wait_time=60, json_info=True, js=self.use_js)
             dl_tag_list = self.check_tag_dl(self.dl_tag)
             going = dl_tag_list
             retry_num += 1
@@ -535,7 +535,7 @@ if __name__ == "__main__":
     #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
     # testid = [x.split('/')[-1] for x in testurl]
     testid2 = [856161, 783832, 721830, 608268, 608269, 605545]
-    Downloader().sln_download(testid2, json_info=False, js=True)
+    Downloader().sln_download(testid2, json_info=False, js=self.use_js)
     # testdriver = Downloader().sln_chrome()
     # testdriver.get(testurl[-1])
     # Downloader().check_finish(testdriver)

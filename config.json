@@ -2,6 +2,7 @@
     "yande": {
         "location": "D:\\Konachantest",
         "year": 2022,
+        "javascript": true,
         "prefix": "yande.re",
         "site": "yande.re",
         "tag": "yande",
@@ -14,6 +15,7 @@
     "konachan": {
         "location": "D:\\Konachantest",
         "year": 2022,
+        "javascript": true,
         "prefix": "Konachan.com",
         "site": "Konachan.com",
         "tag": "konachan",
@@ -25,6 +27,7 @@
     },
     "minitokyo": {
         "location": "D:\\minitokyo",
+        "javascript": true,
         "prefix": "minitokyo.net",
         "site": "minitokyo.net",
         "tag": "minitokyo",
@@ -32,5 +35,6 @@
         "weburl": [
             "http://gallery.minitokyo.net/download/{}"
         ]
-    }
+    },
+    "chrome_profile": "AppData\\Local\\Google\\Chrome\\User Data"
 }

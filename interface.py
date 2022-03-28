@@ -118,7 +118,7 @@ class Yande_re(Downloader):
         count_num = 0
         fin = True
         while id_list:
-            self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=True)
+            self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=self.use_js)
             if fetch_info_only:
                 time.sleep(20)
                 print("json data fetch finished...")
@@ -225,7 +225,7 @@ class Konachan(Downloader):
     def downloader_k(self, dates, id_list, json_info):
         retry = 0
         while id_list:
-            self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=True)
+            self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=self.use_js)
             self.check_dl(dates)
             retry += 1
             id_list = self.remain_id()
