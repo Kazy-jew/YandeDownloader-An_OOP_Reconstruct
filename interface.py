@@ -1,3 +1,5 @@
+import time
+
 from crawler import Downloader
 from archiver import rmdir_current_dl
 import settings
@@ -11,7 +13,7 @@ class Yande_re(Downloader):
         self.set_site('yande')
         self.init_year()
         self.set_download_path()
-        print(settings.config[self.site_tag])
+        print([{k: v} for k, v in settings.config[self.site_tag].items()][:2])
 
     @staticmethod
     def welcome():
@@ -109,11 +111,18 @@ class Yande_re(Downloader):
         # eigenvalue的值(1 or 2)用来区别1:初次下载时/ 2: update时, 下载完成后文件夹的创建和文件的移动
         # fin用于处理源网站图库更新后(图片由于不合要求被moderator删除)新的图片列表和本地的图片列表不一致的情况
         # while及count_num用于处理本地网络原因导致的图片下载失败/同时检查源网页图片是否已被删除
+        # fetch_info_only: fetch image info without downloading --
+        # need to change Downloader.check_complete to True
+        fetch_info_only = True
         original_list = original_id
         count_num = 0
         fin = True
         while id_list:
             self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=True)
+            if fetch_info_only:
+                time.sleep(20)
+                print("json data fetch finished...")
+                raise SystemExit(3)
             self.check_dl(dates)
             id_list = self.remain_id()
             print('Retry times left:', 3 - count_num)
