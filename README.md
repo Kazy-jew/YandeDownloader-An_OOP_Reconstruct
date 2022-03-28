@@ -8,6 +8,21 @@ Currently things to work on:
 3. add hash check (hmmm...js script handles this, so no need anymore)
 4. store file info to a database (3/27/2022, file info to json done)
 
+## Init Python Virtual Environment
+Check [here](https://code.visualstudio.com/docs/python/python-tutorial), A code editor is not necessary though. Python version should be 3.6 or higher.
+Open `cmd` or other shell in the project directory, run
+```
+python -m venv .venv
+```
+then (for windowns).
+```
+.venv\scripts\activate
+```
+run
+```
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+```
+before the second command if activation raises error (This probably won't happen if command is executed in vs code's terminal).
 ## Dependency
 ```
 python -m pip install requests pyautogui termcolor tqdm colorama lxml selenium
