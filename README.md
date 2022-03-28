@@ -14,16 +14,15 @@ Open `cmd` or other shell in the project directory, run
 ```
 python -m venv .venv
 ```
-then
+then (for windowns).
 ```
 .venv\scripts\activate
 ```
-(for windowns).
 run
 ```
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 ```
-before the second command if activation raises error (This probably won't happend if command is executed in vs code's terminal).
+before the second command if activation raises error (This probably won't happen if command is executed in vs code's terminal).
 ## Dependency
 ```
 python -m pip install requests pyautogui termcolor tqdm colorama lxml selenium
