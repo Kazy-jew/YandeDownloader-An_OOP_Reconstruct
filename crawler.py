@@ -36,7 +36,7 @@ class Downloader(Archive):
 
     def sln_chrome(self):
         root = os.path.expanduser('~')
-        chrome_data = r'AppData\Local\Google\Chrome\User Data'
+        chrome_data = self.chrome_profile
         data_dir = os.path.join(root, chrome_data)
         chrome_options = Options()
         # change to your own chrome profile path if is not installed with default configuration,
@@ -170,7 +170,7 @@ class Downloader(Archive):
             return list(set(id_list) - set(id_to_remove))
 
     # selenium realization of multi_dates, for ip restriction of anti-crawler
-    def sln_multi_dates(self, dates, ):
+    def sln_multi_dates(self, dates):
         download_folder = 'current_dl'
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
@@ -230,7 +230,7 @@ class Downloader(Archive):
         return
 
     # get id list under tag(s)
-    def sln_tags(self, tag, js=self.use_js):
+    def sln_tags(self, tag, js=None):
         tag_list = []
         url = self.tag_link.format(1, tag)
         driver = self.sln_chrome()
@@ -535,7 +535,7 @@ if __name__ == "__main__":
     #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
     # testid = [x.split('/')[-1] for x in testurl]
     testid2 = [856161, 783832, 721830, 608268, 608269, 605545]
-    Downloader().sln_download(testid2, json_info=False, js=self.use_js)
+    Downloader().sln_download(testid2, json_info=False, js=True)
     # testdriver = Downloader().sln_chrome()
     # testdriver.get(testurl[-1])
     # Downloader().check_finish(testdriver)
