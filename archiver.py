@@ -21,8 +21,18 @@ class Archive(Calendar):
         if not Path(self.dl_path).exists():
             Path(self.dl_path).mkdir(parents=True)
 
+    # init json data download path
     def init_json_path(self):
-        if self.date_list:
+        if self.date_list and self.dl_tag:
+            choice = input("please choose date (1) or tag (2) to set: ")
+            if choice == "1":
+                self.data_folder = self.site_tag + "Data"
+                self.data_file = self.site + str(self.year) + "." + self.date_list[0] + "_" + self.date_list[-1]
+            else:
+                self.data_folder = self.site_tag + "Data" + "/" + "By.Tag"
+                self.data_file = self.site + " tag#" + self.dl_tag
+            return True
+        elif self.date_list:
             self.data_folder = self.site_tag + "Data"
             self.data_file = self.site + str(self.year) + "." + self.date_list[0] + "_" + self.date_list[-1]
             return True
@@ -135,8 +145,7 @@ class Archive(Calendar):
         data_file = self.site + " tag#" + tag
         self.data_folder = data_folder
         self.data_file = data_file
-        if not settings.Img_data:
-            settings.Img_data = settings.read_data(data_folder, data_file)
+        settings.Img_data = settings.read_data(data_folder, data_file)
         for name in list_all:
             if name.startswith(self.prefix) and (not name.endswith('crdownload')) and os.path.isfile(self.dl_path + '\\' + name):
                 # can use match case here after python 3.10

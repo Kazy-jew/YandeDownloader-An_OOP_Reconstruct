@@ -55,6 +55,10 @@ class Yande_re(Downloader):
             else:
                 print('Invalid Input !')
 
+    # init essential self properties
+    def init_(self):
+        pass
+
     # download
     def bulk_dl(self):
         settings.Img_data = {}
@@ -105,6 +109,25 @@ class Yande_re(Downloader):
         eigenvalue = 2
         self.chk_dl(eigenvalue)
 
+    # download by tag(s)
+    def tag_dl(self):
+        self.dl_tag = input("please input the tag you want to download: ")
+        json_info = self.init_json_path()
+        if settings.read_data(self.data_folder, self.data_file):
+            tag_list = [*settings.Img_data]
+        else:
+            tag_list = self.sln_tags(self.dl_tag)
+        self.downloader_tag(tag_list, json_info)
+    
+    def check_tag(self):
+        if not self.dl_tag:
+            self.dl_tag = input("please input the tag you want to check: ")
+        json_info = self.init_json_path()
+        remain_list = self.check_tag_dl(self.dl_tag)
+        if remain_list:
+            self.downloader_tag(remain_list, json_info)
+
+    # download by date
     def downloader_y(self, dates, original_id, id_list, eigenvalue, json_info=True):
         # original_id: 初始id列表
         # id_list: 当前列表(需要下载的列表)
@@ -118,6 +141,11 @@ class Yande_re(Downloader):
         count_num = 0
         fin = True
         while id_list:
+            # fetch info only
+            settings.read_data(self.data_folder, self.data_file)
+            print(len(id_list), len(settings.Img_data))
+            id_list = [x for x in id_list if len(settings.Img_data[x]) == 2]
+            print(len(id_list))
             self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=self.use_js)
             if fetch_info_only:
                 time.sleep(20)
@@ -157,6 +185,28 @@ class Yande_re(Downloader):
                 self.flush_update(dates)
             else:
                 return
+
+    # download by tag
+    def downloader_tag(self, tag_list, json_info):
+        retry_num = 0
+        going = []
+        dl_tag_list = [x for x in tag_list if not settings.Img_data[x].get('download_state')]
+        print(f"{len(dl_tag_list)} in array...")
+        while dl_tag_list:
+            self.sln_download(dl_tag_list, max_wait_time=60, json_info=json_info, js=self.use_js)
+            dl_tag_list = self.check_tag_dl(self.dl_tag)
+            going = dl_tag_list
+            retry_num += 1
+            print('Retry times left: ', 4 - retry_num)
+            if retry_num == 4:
+                going = self.check_tag_dl(self.dl_tag)
+                break
+        if not going:
+            print('All images downloaded successfully')
+        else:
+            print('check fail info')
+            for x in going:
+                print(f'{settings.Img_data[x]["id"]}: {settings.Img_data[x]["file_url"]}\n')
 
 
 class Konachan(Downloader):
