@@ -222,7 +222,7 @@ class Downloader(Archive):
                   'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
-        if settings.read_data:
+        if settings.read_data(self.data_folder, self.data_file):
             print("json data found....")
         else:
             settings.Img_data = {x: {"retrieved": False, "download_state": False} for x in dates_list}
