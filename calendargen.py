@@ -83,6 +83,7 @@ class Calendar(Site):
                                                   int('{:>2}'.format(date_in[3]))))
         else:
             print("Invalid Form !")
+            self.input_dates()
         print(self.date_list)
         if not Path('./current_dl').exists():
             Path('./current_dl').mkdir(exist_ok=True)
