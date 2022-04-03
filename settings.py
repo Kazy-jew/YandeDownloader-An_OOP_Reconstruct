@@ -19,7 +19,7 @@ def write_data(folder, file):
         json.dump(Img_data, o, indent=4, ensure_ascii=False)
 
 
-def read_data(folder, file):
+def read_data(folder, file, dumb=False):
     global Img_data
     if not Path(f'./ImageData/{folder}/{file}.json').exists():
         print(f"./ImageData{folder}/{file}.json")
@@ -28,7 +28,8 @@ def read_data(folder, file):
         with open(f'./ImageData/{folder}/{file}.json', 'r', encoding='utf-8') as ir:
             Img_data = json.load(ir)
             # print(len(Img_data))
-        print("load imageData... done")
+        if not dumb:
+            print("load imageData... done")
         return Img_data
 
 

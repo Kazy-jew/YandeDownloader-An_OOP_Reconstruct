@@ -142,7 +142,8 @@ class Yande_re(Downloader):
         fin = True
         while id_list:
             # fetch info only
-            settings.read_data(self.data_folder, self.data_file)
+            if not settings.Img_data:
+                settings.read_data(self.data_folder, self.data_file)
             print(f'{len(original_list)} images id in total')
             print(f'{len(settings.Img_data)} images have a json index')
             id_list = [x for x in id_list if len(settings.Img_data[x]) == 2]

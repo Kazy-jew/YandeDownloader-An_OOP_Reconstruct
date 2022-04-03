@@ -38,9 +38,9 @@ class Downloader(Archive):
     def sln_chrome(self):
         root = os.path.expanduser('~')
         chrome_data = self.chrome_profile
-        print(chrome_data)
+        # print(chrome_data)
         data_dir = os.path.join(root, chrome_data)
-        print(data_dir)
+        # print(data_dir)
         chrome_options = Options()
         # change to your own chrome profile path if is not installed with default configuration,
         # you can find it in chrome browser under address chrome://version/
@@ -226,7 +226,7 @@ class Downloader(Archive):
             for item in dates_list:
                 f.write('{}\n'.format(item))
         self.id_list = dates_list
-        if settings.read_data(self.data_folder, self.data_file):
+        if settings.read_data(self.data_folder, self.data_file, dumb=True):
             print("json data found....")
         else:
             settings.Img_data = {x: {"retrieved": False, "download_state": False} for x in dates_list}
