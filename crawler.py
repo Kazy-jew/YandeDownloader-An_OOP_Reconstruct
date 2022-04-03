@@ -358,7 +358,9 @@ class Downloader(Archive):
             if json_info:
                 settings.write_data(self.data_folder, self.data_file)
             print(f"Interrupted at {_}")
-            raise Exception
+            driver.close()
+            time.sleep(6000)
+            return
 
     # retrieved: whether been to the image page, init is False, set to True when has been to the image page.
     # download_state: first set to True when fetching image page, set to False if not found in disk after check
