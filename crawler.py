@@ -33,11 +33,14 @@ class Downloader(Archive):
     def __init__(self):
         super(Downloader, self).__init__()
         self.illustrate = ''
+        self.id_list = []
 
     def sln_chrome(self):
         root = os.path.expanduser('~')
         chrome_data = self.chrome_profile
+        print(chrome_data)
         data_dir = os.path.join(root, chrome_data)
+        print(data_dir)
         chrome_options = Options()
         # change to your own chrome profile path if is not installed with default configuration,
         # you can find it in chrome browser under address chrome://version/
@@ -222,6 +225,7 @@ class Downloader(Archive):
                   'w') as f:
             for item in dates_list:
                 f.write('{}\n'.format(item))
+        self.id_list = dates_list
         if settings.read_data(self.data_folder, self.data_file):
             print("json data found....")
         else:
@@ -229,7 +233,7 @@ class Downloader(Archive):
             settings.write_data(self.data_folder, self.data_file)
             print(f"write {self.data_file} to file...")
         driver.close()
-        return
+        return self.id_list
 
     # get id list under tag(s)
     def sln_tags(self, tag, js=None):
@@ -317,7 +321,7 @@ class Downloader(Archive):
                 source = driver.page_source
                 if json_info:
                     self.sln_getInfo(source, _)
-                    if count == 100:
+                    if count == 50:
                         settings.write_data(self.data_folder, self.data_file)
                         count = 0
                 if not js:
@@ -354,13 +358,13 @@ class Downloader(Archive):
                 print("write data to file...")
                 settings.write_data(self.data_folder, self.data_file)
             driver.close()
+            return 'list complete'
         except:
             if json_info:
                 settings.write_data(self.data_folder, self.data_file)
             print(f"Interrupted at {_}")
             driver.close()
-            time.sleep(6000)
-            return
+            return False
 
     # retrieved: whether been to the image page, init is False, set to True when has been to the image page.
     # download_state: first set to True when fetching image page, set to False if not found in disk after check
@@ -497,8 +501,8 @@ if __name__ == "__main__":
     # testurl = ['https://yande.re/post/show/208854', 'https://yande.re/post/show/650982',
     #            'https://yande.re/post/show/650990', 'https://yande.re/post/show/938322', 'https://yande.re/post/show/938391']
     # testid = [x.split('/')[-1] for x in testurl]
-    testid2 = [856161, 783832, 721830, 608268, 608269, 605545]
-    Downloader().sln_download(testid2, json_info=False, js=True)
+    # testid2 = [856161, 783832, 721830, 608268, 608269, 605545]
+    # Downloader().sln_download(testid2, json_info=False, js=True)
     # testdriver = Downloader().sln_chrome()
     # testdriver.get(testurl[-1])
     # Downloader().check_finish(testdriver)
@@ -526,3 +530,4 @@ if __name__ == "__main__":
     # print(info1.get_attribute('class'), '\n', info2.get_attribute('class'))
     # print(info3.get_attribute('href'))
     # print(re.sub(r'\n', '', imgInfo[0]))
+    Downloader().sln_chrome()

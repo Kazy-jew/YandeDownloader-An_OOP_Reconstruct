@@ -143,12 +143,16 @@ class Yande_re(Downloader):
         while id_list:
             # fetch info only
             settings.read_data(self.data_folder, self.data_file)
-            print(len(id_list), len(settings.Img_data))
+            print(f'{len(original_list)} images id in total')
+            print(f'{len(settings.Img_data)} images have a json index')
             id_list = [x for x in id_list if len(settings.Img_data[x]) == 2]
-            print(len(id_list))
-            self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=self.use_js)
+            print(f'{len(id_list)} of total {len(settings.Img_data)} images have no info')
+            finish = self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=self.use_js)
+            if not finish:
+                time.sleep(2000)
+                continue
             if fetch_info_only:
-                time.sleep(20)
+                time.sleep(5)
                 print("json data fetch finished...")
                 raise SystemExit(3)
             self.check_dl(dates)
