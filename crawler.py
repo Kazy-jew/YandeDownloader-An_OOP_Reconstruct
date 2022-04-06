@@ -355,8 +355,12 @@ class Downloader(Archive):
                 #     time.sleep(100)
             print('transverse list complete')
             if json_info:
-                print("write data to file...")
-                settings.write_data(self.data_folder, self.data_file)
+                updated_list = [x for x in id_list if len(settings.Img_data[x]) == 2]
+                if updated_list:
+                    print("update data to file...")
+                    settings.write_data(self.data_folder, self.data_file)
+                else:
+                    print("no new json data to update ")
             driver.close()
             return 'list complete'
         except:

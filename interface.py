@@ -62,24 +62,24 @@ class Yande_re(Downloader):
     # download
     def bulk_dl(self):
         settings.Img_data = {}
-        dates = self.input_dates()
-        self.date_list = dates
+        grouped_dates = self.group_dates(interval=3)
         json_info = self.init_json_path()
-        self.sln_multi_dates(dates)
-        original_id = self.get_id(dates)
-        id_list = original_id
-        sgl = 's'
-        # ''' input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
-        #  reselected date range,
-        #  enter q to quit and select "download remaining")')'''
-        if sgl == 's':
-            self.downloader_y(dates, original_id, id_list, eigenvalue=1, json_info=json_info)
-        elif sgl == 'q':
-            print('download aborted')
-            return
-        else:
-            print('invalid input !')
-            raise SystemExit(2)
+        for dates in grouped_dates:
+            self.sln_multi_dates(dates)
+            original_id = self.get_id(dates)
+            id_list = original_id
+            sgl = 's'
+            # ''' input('Enter s to start or q to quit: \n(If encountered disk space issue and \n
+            #  reselected date range,
+            #  enter q to quit and select "download remaining")')'''
+            if sgl == 's':
+                self.downloader_y(dates, original_id, id_list, eigenvalue=1, json_info=json_info)
+            elif sgl == 'q':
+                print('download aborted')
+                return
+            else:
+                print('invalid input !')
+                raise SystemExit(2)
 
     # check unfinished
     def chk_dl(self, eigenvalue=1):
@@ -150,12 +150,13 @@ class Yande_re(Downloader):
             print(f'{len(id_list)} of total {len(settings.Img_data)} images have no info')
             finish = self.sln_download(id_list, max_wait_time=60, json_info=json_info, js=self.use_js)
             if not finish:
-                time.sleep(2000)
+                print("sleeping...")
+                time.sleep(1000)
                 continue
             if fetch_info_only:
                 time.sleep(5)
                 print("json data fetch finished...")
-                raise SystemExit(3)
+                return
             self.check_dl(dates)
             id_list = self.remain_id()
             if id_list:
