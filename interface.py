@@ -155,7 +155,7 @@ class Yande_re(Downloader):
                 continue
             if fetch_info_only:
                 time.sleep(5)
-                print("json data fetch finished...")
+                print(f"json data {self.data_file} fetch finished...")
                 return
             self.check_dl(dates)
             id_list = self.remain_id()
