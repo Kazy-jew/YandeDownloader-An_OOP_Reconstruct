@@ -63,8 +63,9 @@ class Yande_re(Downloader):
     def bulk_dl(self):
         settings.Img_data = {}
         grouped_dates = self.group_dates(interval=3)
-        json_info = self.init_json_path()
         for dates in grouped_dates:
+            self.date_list = dates
+            json_info = self.init_json_path()
             self.sln_multi_dates(dates)
             original_id = self.get_id(dates)
             id_list = original_id
