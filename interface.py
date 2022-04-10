@@ -62,6 +62,7 @@ class Yande_re(Downloader):
     # download
     def bulk_dl(self):
         settings.Img_data = {}
+        self.date_list = []
         grouped_dates = self.group_dates(interval=3)
         for dates in grouped_dates:
             self.date_list = dates
