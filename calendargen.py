@@ -18,6 +18,8 @@ class Calendar(Site):
     def set_year(self):
         y = input('please enter za year: ')
         settings.config[self.site_tag]["year"] = int(y)
+        self.year = int(y)
+        self.date_list = []
         print(f'set {self.site} download year to {y}...')
         settings.write_config()
         return int(y)
