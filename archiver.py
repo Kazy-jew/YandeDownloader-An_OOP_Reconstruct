@@ -43,6 +43,12 @@ class Archive(Calendar):
         else:
             return False
 
+    def init_json(self, id_list):
+        for x in id_list:
+            if x not in settings.Img_data.keys():
+                settings.Img_data[x] = {"retrieved": False, "download_state": False}
+        settings.write_data(self.data_folder, self.data_file)
+
     # get_id是为了在继续下载时覆盖dates_list里原有的初始id列表，如在磁盘空间有限时，退出程序重新选择一小部分日期下载
     def get_id(self, dates):
         id_list = []
